@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Construction Hazard: Hydraulic Heave at Excavations</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@500;600;700&family=Montserrat:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --charcoal: #1A1A1A;
+      --slate: #334155;
+      --orange: #FF8C00;
+      --bg: #F8FAFC;
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--charcoal)
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    .font-display {
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: .01em
+    }
+
+    .font-brand {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      letter-spacing: .18em
+    }
+
+    .font-nav {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      letter-spacing: .18em
+    }
+
+    /* Mandarin hover tooltip */
+    .zh-word {
+      position: relative;
+      display: inline-block;
+      cursor: help;
+      transition: color .2s ease;
+    }
+    .zh-word:hover { color: var(--orange) }
+    .zh-word::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 14px);
+      left: 50%;
+      transform: translateX(-50%) translateY(6px);
+      background: #1A1A1A;
+      color: #fff;
+      padding: 8px 14px;
+      border: 1.5px solid var(--orange);
+      border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease, transform .25s ease;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, .45);
+      z-index: 100;
+    }
+    .zh-word::before {
+      content: "";
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: var(--orange);
+      opacity: 0;
+      transition: opacity .25s ease;
+      z-index: 100;
+    }
+    .zh-word:hover::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .zh-word:hover::before { opacity: 1 }
+    .zh-tip-pinyin { color: var(--orange); font-weight: 700; margin-right: 6px }
+
+    .tab-btn {
+      position: relative;
+      transition: color .25s ease
+    }
+
+    .tab-btn::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -6px;
+      width: 0;
+      height: 3px;
+      background: var(--orange);
+      transition: all .3s ease;
+      transform: translateX(-50%)
+    }
+
+    .tab-btn:hover {
+      color: var(--orange)
+    }
+
+    .tab-btn.active {
+      color: var(--orange)
+    }
+
+    .tab-btn.active::after {
+      width: 100%
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+      animation: sectionIn .5s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    }
+
+    .section.leaving {
+      display: block;
+      pointer-events: none;
+      animation: sectionOut .28s cubic-bezier(0.55, 0, 1, 0.45) both;
+    }
+
+    @keyframes sectionIn {
+      from {
+        opacity: 0;
+        transform: translateY(38px);
+        filter: blur(3px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes sectionOut {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(-22px);
+        filter: blur(4px);
+      }
+    }
+
+    /* ── SPLASH ───────────────────────────────── */
+    #splash {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      cursor: pointer;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* Radial sky gradient matching photo's blue tones */
+      background: radial-gradient(ellipse at 50% 20%,
+        #1A60FF 0%,
+        #003FCC 35%,
+        #001A99 70%,
+        #000F6B 100%
+      );
+    }
+
+    #splash-bg {
+      position: absolute;
+      inset: 0;
+      background: url('mukti.jpeg') center 42% / auto 100% no-repeat;
+      /* Fade photo edges so it blends seamlessly into the sky gradient */
+      -webkit-mask-image:
+        linear-gradient(to right,  transparent 0%, black 18%, black 82%, transparent 100%),
+        linear-gradient(to bottom, black 70%, transparent 100%);
+      mask-image:
+        linear-gradient(to right,  transparent 0%, black 18%, black 82%, transparent 100%),
+        linear-gradient(to bottom, black 70%, transparent 100%);
+      -webkit-mask-composite: source-in;
+      mask-composite: intersect;
+    }
+
+    #splash-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(0,0,0,0.88) 0%,
+        rgba(0,0,0,0.38) 45%,
+        rgba(0,0,0,0.15) 100%
+      );
+    }
+
+    #splash-content {
+      position: relative;
+      text-align: center;
+      user-select: none;
+    }
+
+    #splash-name {
+      display: block;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: clamp(0.65rem, 2vw, 0.85rem);
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: #7DD3FC;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      animation: splashFadeUp .8s .3s ease both;
+    }
+
+    #splash-welcome {
+      display: block;
+      font-family: 'Bebas Neue', 'Oswald', sans-serif;
+      font-weight: 900;
+      font-size: clamp(6rem, 22vw, 16rem);
+      line-height: 0.88;
+      color: #fff;
+      letter-spacing: -0.01em;
+      text-shadow: 0 8px 60px rgba(0,0,0,0.55);
+      opacity: 0;
+      animation: splashFadeUp .9s .55s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+      transition: transform .35s ease, text-shadow .35s ease;
+    }
+
+    #splash:hover #splash-welcome {
+      transform: scale(1.025);
+      text-shadow: 0 12px 80px rgba(0,0,0,0.65), 0 0 60px rgba(96,165,250,0.35);
+    }
+
+    #splash-hint {
+      display: block;
+      margin-top: 2rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      opacity: 0;
+      animation: splashFadeUp .7s 1s ease both, splashPulse 2.5s 1.7s ease infinite;
+    }
+
+    @keyframes splashFadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes splashPulse {
+      0%, 100% { opacity: 0.45; }
+      50%       { opacity: 0.85; }
+    }
+
+    #splash.exit {
+      animation: splashSlideUp .85s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+    }
+
+    @keyframes splashSlideUp {
+      0%   { transform: translateY(0) scale(1);      opacity: 1; }
+      30%  { transform: translateY(-8%) scale(1.02); opacity: 1; }
+      100% { transform: translateY(-100%) scale(1);  opacity: 0.92; }
+    }
+
+    #splash.entering {
+      display: flex !important;
+      animation: splashSlideDown .75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes splashSlideDown {
+      from { transform: translateY(-100%); opacity: 0.85; }
+      to   { transform: translateY(0);     opacity: 1; }
+    }
+    /* ─────────────────────────────────────────── */
+
+    .hero {
+      background:
+        linear-gradient(rgba(10, 10, 15, .78), rgba(10, 10, 15, .85)),
+        url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=2000&q=80');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .blueprint-bg {
+      background-color: #0f172a;
+      background-image:
+        linear-gradient(rgba(255, 140, 0, .06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 140, 0, .06) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .card {
+      transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 40px -12px rgba(0, 0, 0, .35);
+      border-color: var(--orange)
+    }
+
+    .icon-circle {
+      width: 64px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--orange);
+      color: #fff;
+      border-radius: 14px;
+      font-size: 26px;
+      box-shadow: 0 8px 18px -6px rgba(255, 140, 0, .55)
+    }
+
+    .stage-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      background: var(--orange);
+      color: #fff;
+      font-weight: 800;
+      font-family: 'Montserrat'
+    }
+
+    .accordion-btn {
+      transition: background .25s ease
+    }
+
+    .accordion-btn:hover {
+      background: #27272a
+    }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .4s ease
+    }
+
+    .accordion.open .accordion-content {
+      max-height: 600px
+    }
+
+    .accordion.open .chev {
+      transform: rotate(180deg)
+    }
+
+    .chev {
+      transition: transform .35s ease
+    }
+
+    .timeline-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--orange);
+      border: 4px solid #1A1A1A;
+      box-shadow: 0 0 0 3px var(--orange)
+    }
+
+    .cta-btn {
+      transition: all .3s ease;
+      letter-spacing: .05em
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 30px -8px rgba(255, 140, 0, .6)
+    }
+
+    .mobile-menu {
+      display: none
+    }
+
+    .mobile-menu.open {
+      display: flex
+    }
+
+    .formula-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .55rem 1.1rem;
+      border: 2px solid var(--orange);
+      border-radius: 999px;
+      font-family: 'Montserrat';
+      font-weight: 700
+    }
+
+    .blueprint-illu {
+      filter: drop-shadow(0 6px 18px rgba(0, 0, 0, .25))
+    }
+
+    ::selection {
+      background: var(--orange);
+      color: #fff
+    }
+
+    .pantone-bg {
+      background-color: #ADA8A5;
+      background-image:
+        linear-gradient(rgba(255,255,255,.22) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.22) 1px, transparent 1px),
+        linear-gradient(rgba(0,0,0,.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,.07) 1px, transparent 1px);
+      background-size: 80px 80px, 80px 80px, 20px 20px, 20px 20px;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50">
+
+  <!-- SPLASH SCREEN -->
+  <div id="splash">
+    <div id="splash-bg"></div>
+    <div id="splash-overlay"></div>
+    <div id="splash-content">
+      <span id="splash-name">Mukti Hadi Trinanda &nbsp;·&nbsp; 木安豪 &nbsp;·&nbsp; W1435407</span>
+      <span id="splash-welcome">WELCOME</span>
+      <span id="splash-hint">Click anywhere to enter</span>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-50 bg-[#1A1A1A] text-white shadow-lg border-b-2 border-[#FF8C00]/40">
+    <div class="max-w-7xl mx-auto px-5 md:px-8 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button id="splash-back" title="Back to Welcome"
+          class="w-8 h-8 rounded-md border border-slate-700 flex items-center justify-center text-slate-500 hover:text-[#FF8C00] hover:border-[#FF8C00] transition-all duration-200 hover:scale-110 flex-shrink-0">
+          <i class="fa-solid fa-circle-play text-sm"></i>
+        </button>
+        <div class="w-10 h-10 rounded-md bg-[#FF8C00] flex items-center justify-center">
+          <i class="fa-solid fa-helmet-safety text-white text-lg"></i>
+        </div>
+        <div class="leading-tight">
+          <div class="font-brand text-sm md:text-base uppercase text-white">Hydraulic Heave</div>
+          <div class="text-[10px] md:text-xs text-slate-400 uppercase tracking-[0.25em] font-bold mt-0.5">Foundation Engineering</div>
+        </div>
+      </div>
+      <nav class="hidden md:flex items-center gap-10 font-nav uppercase text-[13px]">
+        <button data-tab="dashboard" class="tab-btn active">Dashboard</button>
+        <button data-tab="pengertian" class="tab-btn">Overview</button>
+        <button data-tab="topik1" class="tab-btn">Topic 1</button>
+        <button data-tab="topik2" class="tab-btn">Topic 2</button>
+      </nav>
+      <button id="burger" class="md:hidden text-2xl text-[#FF8C00]"><i class="fa-solid fa-bars"></i></button>
+    </div>
+    <div id="mobileMenu" class="mobile-menu md:hidden flex-col bg-[#1A1A1A] border-t border-slate-800 px-5 pb-4 gap-3 font-nav uppercase text-sm">
+      <button data-tab="dashboard" class="tab-btn text-left py-2">Dashboard</button>
+      <button data-tab="pengertian" class="tab-btn text-left py-2">Overview</button>
+      <button data-tab="topik1" class="tab-btn text-left py-2">Topic 1</button>
+      <button data-tab="topik2" class="tab-btn text-left py-2">Topic 2</button>
+    </div>
+  </header>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="section active">
+    <div class="hero min-h-[calc(100vh-72px)] flex items-center text-white relative">
+      <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-10 left-10 w-32 h-32 border-2 border-[#FF8C00]/40 rotate-12 hidden md:block"></div>
+        <div class="absolute bottom-16 right-12 w-44 h-44 border-2 border-white/10 rotate-45 hidden md:block"></div>
+      </div>
+      <div class="max-w-6xl mx-auto px-6 py-20 md:py-28 relative text-center">
+        <div
+          class="inline-flex items-center gap-2 bg-[#FF8C00] text-black font-bold px-4 py-1.5 rounded-sm text-xs uppercase tracking-widest mb-7">
+          <i class="fa-solid fa-triangle-exclamation"></i> Construction Hazard Report
+        </div>
+        <p class="text-xl md:text-3xl text-slate-200 font-light max-w-3xl mx-auto mb-4 leading-snug">
+          <span class="zh-word" data-tip="shī gōng · Construction">施工</span><span class="zh-word" data-tip="wēi hài · Hazard">危害</span>：<span class="zh-word" data-tip="jī kēng · Foundation Pit">基坑</span><span class="zh-word" data-tip="zhōng de · within / inside">中的</span><span class="zh-word" data-tip="shuǐ lì · Hydraulic force">水力</span><span class="zh-word" data-tip="lóng qǐ · Heave / Uplift">隆起</span>
+        </p>
+        <h1 class="font-display font-black uppercase text-3xl sm:text-4xl md:text-6xl leading-[1.1] mb-6">
+          Construction Hazard:<br />
+          <span class="text-[#FF8C00]">Hydraulic Heave</span><br class="hidden sm:block" />
+          <span class="text-white">at Excavations</span>
+        </h1>
+        <p class="text-base md:text-lg text-slate-300 font-light max-w-3xl mx-auto mb-10">
+          Impact, Formation Process &amp; Uplift Safety Analysis.
+        </p>
+
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-6 mb-12">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-12 h-12 rounded-full bg-[#FF8C00] flex items-center justify-center text-black font-black text-lg">
+              M</div>
+            <div class="text-left">
+              <div class="text-xs text-slate-400 uppercase tracking-widest">Presented by</div>
+              <div class="font-display font-bold text-lg">Mukti Hadi Trinanda</div>
+              <div class="text-xs text-slate-400"><span class="zh-word" data-tip="mù ān háo · Chinese name of Mukti Hadi Trinanda">木安豪</span> · W1435407</div>
+            </div>
+          </div>
+          <div class="h-12 w-px bg-slate-600 hidden sm:block"></div>
+          <div class="text-left">
+            <div class="text-xs text-slate-400 uppercase tracking-widest">Field</div>
+            <div class="font-display font-bold text-lg">Foundation Engineering</div>
+            <div class="text-xs text-slate-400"><span class="zh-word" data-tip="jī chǔ gōng chéng · Foundation engineering / geotechnical engineering">基礎工程</span> · Final Presentation</div>
+          </div>
+        </div>
+
+        <button onclick="switchTab('pengertian')"
+          class="cta-btn inline-flex items-center gap-2 bg-[#FF8C00] hover:bg-orange-500 text-black font-display font-bold uppercase px-5 py-2.5 rounded-sm text-xs">
+          Mulai Jelajahi <i class="fa-solid fa-arrow-right-long text-[11px]"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PENGERTIAN -->
+  <section id="pengertian" class="section pantone-bg">
+    <div class="max-w-7xl mx-auto px-6 py-20">
+      <div class="mb-12 max-w-4xl">
+        <div class="text-[#FF8C00] font-display font-bold uppercase tracking-widest text-sm mb-4">
+          <i class="fa-solid fa-book-open mr-2"></i>Overview
+        </div>
+        <p class="text-[#1A1A1A] text-base md:text-xl mb-3 leading-relaxed tracking-wide font-semibold">
+          <span class="zh-word" data-tip="shī qù · To lose / Losing">失去</span><span class="zh-word" data-tip="píng héng · Balance / Equilibrium">平衡</span><span class="zh-word" data-tip="de · possessive particle">的</span><span class="zh-word" data-tip="dì xià · Underground / Subsurface">地下</span><span class="zh-word" data-tip="yìng lì · Stress">應力</span>：<span class="zh-word" data-tip="shuǐ lì · Hydraulic force">水力</span><span class="zh-word" data-tip="lóng qǐ · Heave / Uplift">隆起</span><span class="zh-word" data-tip="de · possessive particle">的</span><span class="zh-word" data-tip="wù lǐ · Physical">物理</span><span class="zh-word" data-tip="běn zhì · Essence / Nature">本質</span>
+        </p>
+        <h2 class="font-display font-black text-3xl md:text-5xl text-[#1A1A1A] uppercase leading-tight">
+          Unbalanced Subsurface Stress:<br class="hidden sm:block"/>The Physical Essence of Hydraulic Heave
+        </h2>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+        <!-- LEFT: PHYSICAL EQUATION -->
+        <div>
+          <div class="bg-[#1A1A1A] rounded-xl shadow-2xl">
+            <div class="bg-[#FF8C00] px-6 py-3 flex items-center gap-2 rounded-t-xl">
+              <i class="fa-solid fa-flask text-black text-sm"></i>
+              <span class="font-bold uppercase tracking-widest text-xs text-black">Physical Equation · <span class="zh-word" style="color:inherit" data-tip="wù lǐ fāng chéng shì · Physical equation">物理方程式</span></span>
+            </div>
+            <div class="p-8 space-y-5">
+
+              <!-- Seepage Force -->
+              <div class="flex items-center gap-5">
+                <div class="w-16 h-16 rounded-2xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center flex-shrink-0">
+                  <i class="fa-solid fa-arrow-up text-sky-400 text-2xl"></i>
+                </div>
+                <div>
+                  <div class="text-sky-400 text-[11px] uppercase tracking-widest font-bold mb-0.5">Seepage Force</div>
+                  <div class="text-white font-display font-black text-3xl leading-none"><span class="zh-word" data-tip="shèn tòu lì · Seepage force / upward groundwater pressure">滲透力</span></div>
+                  <div class="text-slate-500 text-xs mt-1">Upward groundwater pressure</div>
+                </div>
+              </div>
+
+              <!-- > -->
+              <div class="flex items-center gap-5 pl-1">
+                <div class="w-16 flex justify-center">
+                  <span class="text-[#FF8C00] font-black text-5xl leading-none">&gt;</span>
+                </div>
+                <span class="text-slate-500 text-sm italic">exceeds</span>
+              </div>
+
+              <!-- Effective Stress -->
+              <div class="flex items-center gap-5">
+                <div class="w-16 h-16 rounded-2xl bg-slate-600/30 border border-slate-500/30 flex items-center justify-center flex-shrink-0">
+                  <i class="fa-solid fa-weight-hanging text-slate-300 text-2xl"></i>
+                </div>
+                <div>
+                  <div class="text-slate-400 text-[11px] uppercase tracking-widest font-bold mb-0.5">Effective Stress</div>
+                  <div class="text-white font-display font-black text-3xl leading-none"><span class="zh-word" data-tip="yǒu xiào yìng lì · Effective stress / soil resistance force">有效應力</span></div>
+                  <div class="text-slate-500 text-xs mt-1">Soil resistance force</div>
+                </div>
+              </div>
+
+              <!-- = -->
+              <div class="flex items-center gap-5 pl-1">
+                <div class="w-16 flex justify-center">
+                  <span class="text-white font-black text-5xl leading-none">=</span>
+                </div>
+                <span class="text-slate-500 text-sm italic">results in</span>
+              </div>
+
+              <!-- Failure -->
+              <div class="flex items-center gap-5 bg-red-500/10 border border-red-500/25 rounded-xl p-4">
+                <div class="w-16 h-16 rounded-2xl bg-red-500/20 border border-red-500/40 flex items-center justify-center flex-shrink-0">
+                  <i class="fa-solid fa-explosion text-red-400 text-2xl"></i>
+                </div>
+                <div>
+                  <div class="text-red-400 text-[11px] uppercase tracking-widest font-bold mb-0.5">Structural Failure</div>
+                  <div class="text-red-300 font-display font-black text-3xl leading-none"><span class="zh-word" data-tip="pò huài · Structural failure / collapse">破壞</span></div>
+                  <div class="text-red-500/70 text-xs mt-1">Foundation failure &amp; collapse</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Two key terms -->
+          <div class="grid grid-cols-2 gap-4 mt-5">
+            <div class="border-l-4 border-[#FF8C00] bg-white p-5 shadow-sm">
+              <div class="font-display font-bold text-[#1A1A1A] text-sm mb-1">
+                <i class="fa-solid fa-arrow-up text-[#FF8C00] mr-2"></i>Seepage Force
+              </div>
+              <p class="text-xs text-slate-500">Upward groundwater pressure acting on the excavation base.</p>
+            </div>
+            <div class="border-l-4 border-slate-600 bg-white p-5 shadow-sm">
+              <div class="font-display font-bold text-[#1A1A1A] text-sm mb-1">
+                <i class="fa-solid fa-weight-hanging text-slate-600 mr-2"></i>Effective Stress
+              </div>
+              <p class="text-xs text-slate-500">Soil grain contact force — the primary structural resistance.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: 3D BLUEPRINT ILLU -->
+        <div class="blueprint-bg rounded-xl shadow-2xl text-white" style="overflow:visible">
+          <!-- Header bar -->
+          <div class="flex items-center justify-between px-4 py-2 border-b border-[#FF8C00]/25 bg-[#FF8C00]/10">
+            <span class="text-[10px] uppercase tracking-widest text-[#FF8C00]/90 font-bold">Blueprint · 3D Section View</span>
+            <span class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Scale 1:50</span>
+          </div>
+
+          <!-- 3D SVG Diagram -->
+          <svg viewBox="0 0 400 430" class="w-full">
+            <defs>
+              <linearGradient id="gSoilF" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#475569"/><stop offset="100%" stop-color="#1e293b"/>
+              </linearGradient>
+              <linearGradient id="gPit" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0f172a"/><stop offset="100%" stop-color="#172554" stop-opacity=".8"/>
+              </linearGradient>
+              <linearGradient id="gWater" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0284c7" stop-opacity=".4"/><stop offset="100%" stop-color="#0369a1" stop-opacity=".85"/>
+              </linearGradient>
+            </defs>
+
+            <!-- GROUNDWATER ZONE -->
+            <rect x="30" y="308" width="340" height="88" fill="url(#gWater)" rx="3"/>
+            <text x="200" y="356" fill="#38bdf8" font-size="8.5" text-anchor="middle" font-family="Inter" font-weight="700" opacity=".85">— GROUNDWATER ZONE —</text>
+
+            <!-- LEFT SOIL: top 3D face -->
+            <polygon points="30,92 115,92 132,76 47,76" fill="#64748b"/>
+            <!-- LEFT SOIL: front face -->
+            <rect x="30" y="92" width="85" height="218" fill="url(#gSoilF)"/>
+
+            <!-- LEFT SHEET PILE: top 3D face -->
+            <polygon points="115,92 123,92 140,76 132,76" fill="#FFB347"/>
+            <!-- LEFT SHEET PILE: front face -->
+            <rect x="115" y="76" width="8" height="234" fill="#FF8C00"/>
+
+            <!-- EXCAVATION BACK WALL (3D top of pit opening) -->
+            <polygon points="131,76 269,76 286,60 148,60" fill="#0c1523" opacity=".95"/>
+
+            <!-- PIT INTERIOR -->
+            <rect x="123" y="92" width="154" height="218" fill="url(#gPit)"/>
+            <!-- Pit floor line -->
+            <rect x="123" y="308" width="154" height="3" fill="#38bdf8" opacity=".5"/>
+
+            <!-- RIGHT SHEET PILE: top 3D face -->
+            <polygon points="277,92 285,92 302,76 285,76" fill="#FFB347"/>
+            <!-- Note: adjusted from 292 to 285 for cleaner shape -->
+            <!-- RIGHT SHEET PILE: front face -->
+            <rect x="277" y="76" width="8" height="234" fill="#FF8C00"/>
+
+            <!-- RIGHT SOIL: top 3D face -->
+            <polygon points="285,92 370,92 387,76 302,76" fill="#64748b"/>
+            <!-- RIGHT SOIL: front face -->
+            <rect x="285" y="92" width="85" height="218" fill="url(#gSoilF)"/>
+
+            <!-- GROUND SURFACE LAYER (thin strip on soil) -->
+            <rect x="30" y="84" width="85" height="9" fill="#94a3b8" opacity=".55"/>
+            <rect x="285" y="84" width="85" height="9" fill="#94a3b8" opacity=".55"/>
+
+            <!-- GROUND LEVEL DASHED LINE -->
+            <line x1="10" y1="92" x2="390" y2="92" stroke="#FF8C00" stroke-width="1.5" stroke-dasharray="6 4" opacity=".75"/>
+            <text x="200" y="83" fill="#FF8C00" font-size="8.5" text-anchor="middle" font-family="Inter" font-weight="700" letter-spacing="2">GROUND LEVEL</text>
+
+            <!-- FAILURE PLANE (red dashed arc) -->
+            <path d="M123,308 Q200,276 277,308" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="5 3"/>
+            <text x="200" y="268" fill="#ef4444" font-size="8.5" text-anchor="middle" font-family="Inter" font-weight="600">FAILURE PLANE</text>
+
+            <!-- EXCAVATION BASE LABEL -->
+            <text x="200" y="323" fill="rgba(255,255,255,.65)" font-size="8" text-anchor="middle" font-family="Inter">EXCAVATION BASE</text>
+
+            <!-- SEEPAGE FORCE ARROWS (upward, blue) -->
+            <g fill="#38bdf8" stroke="#38bdf8" stroke-width="1.5">
+              <line x1="148" y1="408" x2="148" y2="322"/><polygon points="144,327 152,327 148,315"/>
+              <line x1="172" y1="418" x2="172" y2="322"/><polygon points="168,327 176,327 172,315"/>
+              <line x1="200" y1="420" x2="200" y2="322"/><polygon points="196,327 204,327 200,315"/>
+              <line x1="228" y1="418" x2="228" y2="322"/><polygon points="224,327 232,327 228,315"/>
+              <line x1="252" y1="408" x2="252" y2="322"/><polygon points="248,327 256,327 252,315"/>
+            </g>
+            <text x="200" y="428" fill="#38bdf8" font-size="8.5" text-anchor="middle" font-family="Inter" font-weight="700">SEEPAGE FORCE ↑</text>
+
+            <!-- SOIL WEIGHT ARROWS (downward, orange) - LEFT -->
+            <g fill="#FF8C00" stroke="#FF8C00" stroke-width="2">
+              <line x1="72" y1="110" x2="72" y2="180"/>
+              <polygon points="68,173 76,173 72,185"/>
+            </g>
+            <text x="72" y="106" fill="#FF8C00" font-size="7.5" text-anchor="middle" font-family="Inter" font-weight="700">SOIL WT ↓</text>
+
+            <!-- SOIL WEIGHT ARROWS (downward, orange) - RIGHT -->
+            <g fill="#FF8C00" stroke="#FF8C00" stroke-width="2">
+              <line x1="327" y1="110" x2="327" y2="180"/>
+              <polygon points="323,173 331,173 327,185"/>
+            </g>
+            <text x="327" y="106" fill="#FF8C00" font-size="7.5" text-anchor="middle" font-family="Inter" font-weight="700">SOIL WT ↓</text>
+
+            <!-- WATER TABLE INSIDE PIT (faint) -->
+            <line x1="123" y1="250" x2="277" y2="250" stroke="#38bdf8" stroke-width="1" stroke-dasharray="3 3" opacity=".45"/>
+
+            <!-- WALL LABELS -->
+            <text x="119" y="60" fill="#FFB347" font-size="7" text-anchor="middle" font-family="Inter" font-weight="700">PILE</text>
+            <text x="281" y="60" fill="#FFB347" font-size="7" text-anchor="middle" font-family="Inter" font-weight="700">PILE</text>
+          </svg>
+
+          <!-- LEGEND: Mandarin (zh-word) above English -->
+          <div class="px-4 pb-4 pt-3 border-t border-slate-700/50 grid grid-cols-2 gap-x-6 gap-y-5 text-center">
+            <div>
+              <div class="text-[#38bdf8] font-display font-bold text-base mb-0.5">
+                <span class="zh-word" data-tip="shèn tòu lì · Seepage / upward groundwater pressure">滲透力</span>
+              </div>
+              <div class="text-[9px] uppercase tracking-widest text-slate-400">Seepage Force ↑</div>
+            </div>
+            <div>
+              <div class="text-[#FF8C00] font-display font-bold text-base mb-0.5">
+                <span class="zh-word" data-tip="tǔ yā lì · Soil pressure / downward weight of soil">土壓力</span>
+              </div>
+              <div class="text-[9px] uppercase tracking-widest text-slate-400">Soil Weight ↓</div>
+            </div>
+            <div>
+              <div class="text-red-400 font-display font-bold text-base mb-0.5">
+                <span class="zh-word" data-tip="pò huài miàn · Failure plane / slip surface in soil">破壞面</span>
+              </div>
+              <div class="text-[9px] uppercase tracking-widest text-slate-400">Failure Plane</div>
+            </div>
+            <div>
+              <div class="text-slate-200 font-display font-bold text-base mb-0.5">
+                <span class="zh-word" data-tip="dì miàn · Ground surface level">地面</span>
+              </div>
+              <div class="text-[9px] uppercase tracking-widest text-slate-400">Ground Level</div>
+            </div>
+            <div>
+              <div class="text-[#FFB347] font-display font-bold text-base mb-0.5">
+                <span class="zh-word" data-tip="bǎn zhuāng qiáng · Sheet pile retaining wall">板樁牆</span>
+              </div>
+              <div class="text-[9px] uppercase tracking-widest text-slate-400">Sheet Pile Wall</div>
+            </div>
+            <div>
+              <div class="text-slate-300 font-display font-bold text-base mb-0.5">
+                <span class="zh-word" data-tip="kēng dǐ · Excavation pit base / bottom floor">坑底</span>
+              </div>
+              <div class="text-[9px] uppercase tracking-widest text-slate-400">Excavation Base</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOPIK 1 -->
+  <section id="topik1" class="section pantone-bg">
+    <div class="max-w-7xl mx-auto px-6 py-20">
+      <div class="mb-10">
+        <div class="text-[#FF8C00] font-display font-bold uppercase tracking-widest text-sm mb-3"><i
+            class="fa-solid fa-layer-group mr-2"></i>Topik 1</div>
+        <h2 class="font-display font-black text-3xl md:text-5xl text-[#1A1A1A] uppercase leading-tight">The Four Stages
+          of Collapse</h2>
+        <p class="text-[#1A1A1A] mt-2 text-lg font-semibold tracking-wide">
+          <span class="zh-word" data-tip="sì · Four">四</span><span class="zh-word" data-tip="gè · (measure word)">個</span><span class="zh-word" data-tip="bēng tā · Collapse / Failure">崩塌</span><span class="zh-word" data-tip="jiē duàn · Stage / Phase">階段</span>
+        </p>
+      </div>
+
+      <!-- OVERVIEW CALLOUT -->
+      <div
+        class="bg-[#1A1A1A] text-white p-8 md:p-10 border-l-[10px] border-[#FF8C00] rounded-2xl shadow-xl mb-14 relative overflow-hidden">
+        <div
+          class="absolute top-0 right-0 text-[120px] font-display font-black text-white/[.04] leading-none select-none pointer-events-none">
+          01</div>
+        <h3 class="font-display font-black text-2xl md:text-4xl mb-5 uppercase">Evolution Summary of Hydraulic Heave
+        </h3>
+        <p class="text-slate-300 text-base md:text-lg leading-relaxed max-w-4xl">
+          Structural failure due to hydraulic heave does not occur instantly — it is a
+          <span class="text-[#FF8C00] font-bold">chain reaction</span> that begins with minor seepage and escalates
+          to an unstoppable structural collapse.
+          This process is inherently <span class="underline decoration-[#FF8C00] decoration-2 underline-offset-4">hidden</span>
+          and <span class="underline decoration-[#FF8C00] decoration-2 underline-offset-4">progressively accelerating</span>.
+        </p>
+        <div class="mt-6 pt-6 border-t border-slate-700/70 text-sm text-slate-400 italic">
+          <i class="fa-solid fa-quote-left text-[#FF8C00] mr-2"></i>
+          Key Takeaway: From a tiny water-flow disturbance to irreversible structural rupture — hydraulic heave is a
+          highly concealed and progressively accelerating process.
+        </div>
+      </div>
+
+      <!-- 4 STAGE CARDS -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <!-- Stage 1 -->
+        <div class="card bg-[#F5F0EB] border border-[#C4B9B0] rounded-lg relative" style="overflow:visible">
+          <div class="relative overflow-hidden rounded-t-lg">
+            <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-28">
+              <rect width="200" height="100" fill="#D6EAF8"/>
+              <rect x="0" y="50" width="62" height="50" fill="#9E8052"/>
+              <rect x="138" y="50" width="62" height="50" fill="#9E8052"/>
+              <line x1="0" y1="65" x2="62" y2="65" stroke="#7A6244" stroke-width="0.8" opacity="0.5"/>
+              <rect x="138" y="20" width="62" height="30" fill="#60A5FA" opacity="0.45"/>
+              <line x1="138" y1="20" x2="200" y2="20" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="5 3"/>
+              <text x="168" y="14" fill="#1D4ED8" font-size="7" text-anchor="middle" font-family="Arial,sans-serif" font-weight="bold">GWL</text>
+              <rect x="62" y="70" width="76" height="30" fill="#B39060"/>
+              <rect x="62" y="6" width="76" height="64" fill="#EBF5FF" opacity="0.9"/>
+              <rect x="55" y="2" width="9" height="98" fill="#334155" rx="1"/>
+              <rect x="136" y="2" width="9" height="98" fill="#334155" rx="1"/>
+              <rect x="55" y="2" width="3" height="98" fill="#475569" rx="1"/>
+              <rect x="136" y="2" width="3" height="98" fill="#475569" rx="1"/>
+              <line x1="0" y1="50" x2="55" y2="50" stroke="#7A6244" stroke-width="1.5"/>
+              <line x1="145" y1="50" x2="200" y2="50" stroke="#7A6244" stroke-width="1.5"/>
+              <path d="M 136 76 Q 112 81 90 76" stroke="#3B82F6" stroke-width="2" fill="none" stroke-dasharray="5 3"/>
+              <circle cx="86" cy="76" r="3.5" fill="#60A5FA" opacity="0.85"/>
+              <text x="100" y="38" fill="#475569" font-size="7.5" text-anchor="middle" font-family="Arial,sans-serif">EXCAVATION PIT</text>
+            </svg>
+            <span class="absolute top-3 right-3 stage-badge">01</span>
+          </div>
+          <div class="p-5">
+            <div class="text-xs font-display font-bold uppercase tracking-widest text-[#FF8C00] mb-2">Stage 1 · <span class="zh-word" data-tip="jiē duàn yī · Stage 1 / First phase">階段 1</span></div>
+            <h4 class="font-display font-black text-xl text-[#1A1A1A] mb-2">Initial Disturbance</h4>
+            <p class="text-xs text-slate-500 italic mb-3"><span class="zh-word" data-tip="chū shǐ pò huài · Initial disturbance / beginning of failure">初始破壞</span> / <span class="zh-word" data-tip="kāi shǐ jiē duàn · Beginning stage / onset phase">開始階段</span></p>
+            <p class="text-sm text-slate-700 leading-relaxed">Water begins seeping beneath the sheet pile wall. Soil structure remains intact, but initial seepage and disturbance have started.</p>
+          </div>
+        </div>
+
+        <!-- Stage 2 -->
+        <div class="card bg-[#F5F0EB] border border-[#C4B9B0] rounded-lg relative" style="overflow:visible">
+          <div class="relative overflow-hidden rounded-t-lg">
+            <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-28">
+              <rect width="200" height="100" fill="#D6EAF8"/>
+              <rect x="0" y="50" width="62" height="50" fill="#9E8052"/>
+              <rect x="138" y="50" width="62" height="50" fill="#9E8052"/>
+              <rect x="138" y="20" width="62" height="30" fill="#60A5FA" opacity="0.45"/>
+              <line x1="138" y1="20" x2="200" y2="20" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="5 3"/>
+              <text x="168" y="14" fill="#1D4ED8" font-size="7" text-anchor="middle" font-family="Arial,sans-serif" font-weight="bold">GWL</text>
+              <rect x="62" y="74" width="76" height="26" fill="#B39060"/>
+              <rect x="62" y="6" width="76" height="68" fill="#EBF5FF" opacity="0.9"/>
+              <rect x="55" y="2" width="9" height="98" fill="#334155" rx="1"/>
+              <rect x="136" y="2" width="9" height="98" fill="#334155" rx="1"/>
+              <rect x="55" y="2" width="3" height="98" fill="#475569" rx="1"/>
+              <rect x="136" y="2" width="3" height="98" fill="#475569" rx="1"/>
+              <line x1="0" y1="50" x2="55" y2="50" stroke="#7A6244" stroke-width="1.5"/>
+              <line x1="145" y1="50" x2="200" y2="50" stroke="#7A6244" stroke-width="1.5"/>
+              <ellipse cx="136" cy="78" rx="18" ry="7" fill="#3B82F6" opacity="0.55"/>
+              <path d="M 120 76 L 85 76" stroke="#3B82F6" stroke-width="2" fill="none"/>
+              <polygon points="85,73 79,76 85,79" fill="#3B82F6"/>
+              <circle cx="112" cy="73" r="2.5" fill="#9E8052" opacity="0.9"/>
+              <circle cx="104" cy="78" r="2" fill="#9E8052" opacity="0.8"/>
+              <circle cx="96" cy="74" r="2.2" fill="#9E8052" opacity="0.75"/>
+              <text x="100" y="38" fill="#475569" font-size="7.5" text-anchor="middle" font-family="Arial,sans-serif">EROSION BEGINS</text>
+            </svg>
+            <span class="absolute top-3 right-3 stage-badge">02</span>
+          </div>
+          <div class="p-5">
+            <div class="text-xs font-display font-bold uppercase tracking-widest text-[#FF8C00] mb-2">Stage 2 · <span class="zh-word" data-tip="jiē duàn èr · Stage 2 / Second phase">階段 2</span></div>
+            <h4 class="font-display font-black text-xl text-[#1A1A1A] mb-2">Backward Erosion</h4>
+            <p class="text-xs text-slate-500 italic mb-3"><span class="zh-word" data-tip="nì xiàng qīn shí · Backward erosion / reverse seepage erosion">逆向侵蝕</span> / <span class="zh-word" data-tip="zhú jiàn pò huài · Progressive failure / gradual collapse">逐漸破壞</span></p>
+            <p class="text-sm text-slate-700 leading-relaxed">Water flow strengthens and begins eroding soil particles backward, gradually forming small seepage tunnels beneath the foundation.</p>
+          </div>
+        </div>
+
+        <!-- Stage 3 -->
+        <div class="card bg-[#F5F0EB] border border-[#C4B9B0] rounded-lg relative" style="overflow:visible">
+          <div class="relative overflow-hidden rounded-t-lg">
+            <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-28">
+              <rect width="200" height="100" fill="#C8DFF5"/>
+              <rect x="0" y="50" width="62" height="50" fill="#9E8052"/>
+              <rect x="138" y="50" width="62" height="50" fill="#9E8052"/>
+              <rect x="138" y="14" width="62" height="36" fill="#60A5FA" opacity="0.5"/>
+              <line x1="138" y1="14" x2="200" y2="14" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="5 3"/>
+              <text x="168" y="10" fill="#1D4ED8" font-size="7" text-anchor="middle" font-family="Arial,sans-serif" font-weight="bold">GWL ↑</text>
+              <rect x="62" y="78" width="76" height="22" fill="#B39060"/>
+              <rect x="62" y="6" width="76" height="72" fill="#EBF5FF" opacity="0.85"/>
+              <rect x="55" y="2" width="9" height="98" fill="#334155" rx="1"/>
+              <rect x="136" y="2" width="9" height="98" fill="#334155" rx="1"/>
+              <rect x="55" y="2" width="3" height="98" fill="#475569" rx="1"/>
+              <rect x="136" y="2" width="3" height="98" fill="#475569" rx="1"/>
+              <line x1="0" y1="50" x2="55" y2="50" stroke="#7A6244" stroke-width="1.5"/>
+              <line x1="145" y1="50" x2="200" y2="50" stroke="#7A6244" stroke-width="1.5"/>
+              <rect x="64" y="72" width="72" height="10" fill="#2563EB" opacity="0.7" rx="2"/>
+              <path d="M 100 78 L 100 60 L 100 45" stroke="#1D4ED8" stroke-width="2.5" fill="none"/>
+              <polygon points="96,46 100,38 104,46" fill="#1D4ED8"/>
+              <path d="M 90 74 L 90 55" stroke="#3B82F6" stroke-width="1.5" fill="none" opacity="0.7"/>
+              <path d="M 110 74 L 110 55" stroke="#3B82F6" stroke-width="1.5" fill="none" opacity="0.7"/>
+              <text x="100" y="32" fill="#1E3A8A" font-size="7.5" text-anchor="middle" font-family="Arial,sans-serif" font-weight="bold">FLOW CHANNEL</text>
+            </svg>
+            <span class="absolute top-3 right-3 stage-badge">03</span>
+          </div>
+          <div class="p-5">
+            <div class="text-xs font-display font-bold uppercase tracking-widest text-[#FF8C00] mb-2">Stage 3 · <span class="zh-word" data-tip="jiē duàn sān · Stage 3 / Third phase">階段 3</span></div>
+            <h4 class="font-display font-black text-xl text-[#1A1A1A] mb-2">Flow Channel</h4>
+            <p class="text-xs text-slate-500 italic mb-3"><span class="zh-word" data-tip="liú dòng tōng dào xíng chéng · Flow channel formation / seepage path development">流動通道形成</span></p>
+            <p class="text-sm text-slate-700 leading-relaxed">A clear flow channel forms through the soil, enabling continuous upward water flow and increasing soil loss at an accelerating rate.</p>
+          </div>
+        </div>
+
+        <!-- Stage 4 -->
+        <div class="card bg-[#FDF0EE] border border-red-300 rounded-lg relative" style="overflow:visible">
+          <div class="relative overflow-hidden rounded-t-lg">
+            <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-28">
+              <rect width="200" height="100" fill="#FEE2E2"/>
+              <rect x="0" y="52" width="62" height="48" fill="#92614A"/>
+              <rect x="140" y="52" width="60" height="48" fill="#92614A"/>
+              <rect x="140" y="18" width="60" height="34" fill="#60A5FA" opacity="0.4"/>
+              <line x1="140" y1="18" x2="200" y2="18" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="5 3"/>
+              <rect x="62" y="74" width="78" height="26" fill="#EF4444" opacity="0.3"/>
+              <rect x="62" y="6" width="78" height="68" fill="#FFECEC" opacity="0.8"/>
+              <line x1="45" y1="50" x2="100" y2="53" stroke="#EF4444" stroke-width="2" stroke-dasharray="4 2"/>
+              <line x1="100" y1="53" x2="155" y2="50" stroke="#EF4444" stroke-width="2" stroke-dasharray="4 2"/>
+              <g transform="rotate(-8, 53, 50)">
+                <rect x="49" y="2" width="9" height="98" fill="#7F1D1D" rx="1"/>
+                <rect x="49" y="2" width="3" height="98" fill="#991B1B" rx="1"/>
+              </g>
+              <g transform="rotate(7, 144, 50)">
+                <rect x="140" y="2" width="9" height="98" fill="#334155" rx="1"/>
+                <rect x="140" y="2" width="3" height="98" fill="#475569" rx="1"/>
+              </g>
+              <path d="M 70 74 Q 100 80 130 74" stroke="#EF4444" stroke-width="2" fill="#EF4444" fill-opacity="0.15"/>
+              <path d="M 62 52 L 68 48 L 72 52 L 78 47 L 84 52" stroke="#DC2626" stroke-width="1.5" fill="none"/>
+              <path d="M 120 52 L 126 48 L 130 52 L 136 47 L 140 52" stroke="#DC2626" stroke-width="1.5" fill="none"/>
+              <circle cx="85" cy="78" r="5" fill="#EF4444" opacity="0.5"/>
+              <circle cx="100" cy="82" r="7" fill="#EF4444" opacity="0.4"/>
+              <circle cx="115" cy="78" r="5" fill="#EF4444" opacity="0.5"/>
+              <text x="100" y="35" fill="#991B1B" font-size="7.5" text-anchor="middle" font-family="Arial,sans-serif" font-weight="bold">⚠ COLLAPSE</text>
+            </svg>
+            <span class="absolute top-3 right-3 stage-badge bg-red-600">04</span>
+          </div>
+          <div class="p-5">
+            <div class="text-xs font-display font-bold uppercase tracking-widest text-red-600 mb-2">Stage 4 · <span class="zh-word" data-tip="jiē duàn sì · Stage 4 / Final phase">階段 4</span></div>
+            <h4 class="font-display font-black text-xl text-[#1A1A1A] mb-2">Liquefaction &amp; Collapse</h4>
+            <p class="text-xs text-slate-500 italic mb-3"><span class="zh-word" data-tip="yè huà yǔ bēng tā · Liquefaction and collapse / soil loses strength and fails">液化與崩塌</span></p>
+            <p class="text-sm text-slate-700 leading-relaxed">Soil turns to mud and loses all bearing capacity. Sheet pile walls buckle, leading to total structural failure and catastrophic collapse.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Process arrow -->
+      <div
+        class="hidden lg:flex items-center justify-center gap-4 mt-10 text-[#1A1A1A] font-display font-bold uppercase text-xs tracking-widest">
+        <span>Initial</span><i class="fa-solid fa-arrow-right-long text-[#FF8C00]"></i>
+        <span>Erosion</span><i class="fa-solid fa-arrow-right-long text-[#FF8C00]"></i>
+        <span>Channel</span><i class="fa-solid fa-arrow-right-long text-[#FF8C00]"></i>
+        <span class="text-red-600">Collapse</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOPIK 2 -->
+  <section id="topik2" class="section pantone-bg">
+    <div class="max-w-7xl mx-auto px-6 py-20">
+      <div class="mb-10">
+        <div class="text-[#FF8C00] font-display font-bold uppercase tracking-widest text-sm mb-3"><i
+            class="fa-solid fa-water mr-2"></i>Topik 2</div>
+        <h2 class="font-display font-black text-3xl md:text-5xl text-[#1A1A1A] uppercase leading-tight">Four Foundation
+          Pit Scenarios</h2>
+        <p class="text-[#1A1A1A] mt-2 text-lg font-semibold tracking-wide">
+          <span class="zh-word" data-tip="sì · Four">四</span><span class="zh-word" data-tip="zhǒng · Types / Kinds">種</span><span class="zh-word" data-tip="jī kēng · Foundation pit / excavation pit">基坑</span><span class="zh-word" data-tip="qíng jìng · Scenario / Condition">情境</span>
+        </p>
+      </div>
+
+      <!-- OVERVIEW CALLOUT (ORANGE) -->
+      <div class="bg-[#FF8C00] text-white p-8 md:p-10 rounded-2xl shadow-xl mb-14 relative overflow-hidden">
+        <div
+          class="absolute top-0 right-0 text-[120px] font-display font-black text-white/10 leading-none select-none pointer-events-none">
+          02</div>
+        <h3 class="font-display font-black text-2xl md:text-4xl mb-5 uppercase">Analyzing Uplift Scenarios</h3>
+        <p class="text-white/95 text-base md:text-lg leading-relaxed max-w-4xl">
+          In addressing anti-uplift safety (<span class="zh-word" data-tip="kàng fú ān quán · Anti-uplift safety / buoyancy resistance">抗浮安全</span>) concerns, different geological conditions and engineering designs produce
+          <span class="font-bold underline decoration-white decoration-2 underline-offset-4">vastly different pressure distributions</span>.
+          The following four scenarios outline the most common combinations encountered by civil engineers in the field.
+        </p>
+        <div class="mt-6 pt-6 border-t border-white/30 text-sm text-white/90 italic">
+          <i class="fa-solid fa-quote-left mr-2"></i>
+          Analyzing Hydrostatic Uplift Scenarios across different site and design conditions.
+        </div>
+      </div>
+
+      <!-- TIMELINE / SCENARIO LIST -->
+      <div class="relative">
+        <!-- vertical line (desktop) -->
+        <div
+          class="hidden md:block absolute left-[27px] top-2 bottom-2 w-[2px] bg-gradient-to-b from-[#FF8C00] via-[#FF8C00] to-red-600">
+        </div>
+
+        <div class="space-y-10">
+
+          <!-- SCENARIO 1 -->
+          <div class="md:pl-20 relative">
+            <div class="hidden md:block absolute left-[19px] top-2 timeline-dot"></div>
+            <div class="grid md:grid-cols-5 gap-6 items-stretch">
+              <!-- Visual -->
+              <div class="md:col-span-2 blueprint-bg rounded-md p-6 text-white relative">
+                <div
+                  class="absolute top-3 right-3 text-[10px] uppercase tracking-widest text-[#FF8C00]/80 font-display font-bold">
+                  Concrete Floor</div>
+                <svg viewBox="0 0 200 180" class="w-full">
+                  <rect x="20" y="40" width="160" height="100" fill="#334155" opacity=".6" />
+                  <rect x="20" y="40" width="160" height="20" fill="#94a3b8" />
+                  <text x="100" y="55" fill="#0f172a" font-size="9" text-anchor="middle" font-family="Montserrat"
+                    font-weight="700">CONCRETE</text>
+                  <g stroke="#FF8C00" stroke-width="2" fill="#FF8C00">
+                    <line x1="60" y1="20" x2="60" y2="35" />
+                    <polygon points="56,32 64,32 60,40" />
+                    <line x1="140" y1="20" x2="140" y2="35" />
+                    <polygon points="136,32 144,32 140,40" />
+                  </g>
+                  <text x="100" y="18" fill="#FF8C00" font-size="10" text-anchor="middle" font-family="Montserrat"
+                    font-weight="700">G (Weight ↓)</text>
+                  <g stroke="#38bdf8" stroke-width="2" fill="#38bdf8">
+                    <line x1="80" y1="160" x2="80" y2="100" />
+                    <polygon points="76,108 84,108 80,98" />
+                    <line x1="120" y1="160" x2="120" y2="100" />
+                    <polygon points="116,108 124,108 120,98" />
+                  </g>
+                  <text x="100" y="175" fill="#38bdf8" font-size="10" text-anchor="middle" font-family="Montserrat"
+                    font-weight="700">A (Water ↑)</text>
+                </svg>
+                <div class="mt-3 text-center">
+                  <span
+                    class="inline-block bg-green-500 text-white font-display font-black px-4 py-1.5 rounded-sm text-sm uppercase">G
+                    &gt; A = SAFE ✓</span>
+                </div>
+              </div>
+              <!-- Text -->
+              <div class="md:col-span-3 bg-[#F5F0EB] border border-[#C4B9B0] rounded-xl p-7">
+                <div class="flex items-center gap-3 mb-3">
+                  <span class="stage-badge bg-green-600">01</span>
+                  <span class="font-display font-bold uppercase text-xs tracking-widest text-green-600"><i
+                      class="fa-solid fa-shield-halved mr-1"></i>Safe Scenario</span>
+                </div>
+                <h4 class="font-display font-black text-xl md:text-2xl text-[#1A1A1A] mb-1">Concrete Floor</h4>
+                <p class="text-slate-500 italic mb-4"><span class="zh-word" data-tip="qíng kuàng yī · Scenario 1">情況一</span>：<span class="zh-word" data-tip="hùn níng tǔ dì bǎn · Concrete floor slab">混凝土地板</span></p>
+                <p class="text-slate-700 leading-relaxed mb-3">
+                  Groundwater generates upward pressure <b>(A)</b>. The weight of soil and structure <b>(G)</b> acts downward.
+                  If <span class="formula-pill text-[10px] py-0.5 px-2 border-green-600 text-green-700">G &gt;
+                    A</span>, the condition is safe.
+                </p>
+                <p class="text-xs text-slate-500 italic border-l-2 border-slate-300 pl-3">
+                  Groundwater creates upward pressure (A). If the weight of soil &amp; structure (G) is larger than
+                  water pressure, the system is safe.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- SCENARIO 2 -->
+          <div class="md:pl-20 relative">
+            <div class="hidden md:block absolute left-[19px] top-2 timeline-dot"></div>
+            <div class="grid md:grid-cols-5 gap-6 items-stretch">
+              <div class="md:col-span-2 blueprint-bg rounded-md p-6 text-white">
+                <div class="absolute"></div>
+                <svg viewBox="0 0 200 180" class="w-full">
+                  <rect x="20" y="40" width="160" height="100" fill="#334155" opacity=".6" />
+                  <rect x="20" y="125" width="160" height="15" fill="#FF8C00" />
+                  <text x="100" y="136" fill="#1A1A1A" font-size="8" text-anchor="middle" font-family="Montserrat"
+                    font-weight="700">SEALING LAYER</text>
+                  <g stroke="#38bdf8" stroke-width="2" fill="#38bdf8">
+                    <line x1="60" y1="170" x2="60" y2="148" />
+                    <polygon points="56,153 64,153 60,143" />
+                    <line x1="100" y1="170" x2="100" y2="148" />
+                    <polygon points="96,153 104,153 100,143" />
+                    <line x1="140" y1="170" x2="140" y2="148" />
+                    <polygon points="136,153 144,153 140,143" />
+                  </g>
+                  <text x="100" y="35" fill="#FF8C00" font-size="10" text-anchor="middle" font-family="Montserrat"
+                    font-weight="700">UPLIFT RESISTED ⛔</text>
+                </svg>
+                <div class="mt-3 text-center">
+                  <span
+                    class="inline-block bg-[#FF8C00] text-black font-display font-black px-4 py-1.5 rounded-sm text-sm uppercase">Resistance
+                    +</span>
+                </div>
+              </div>
+              <div class="md:col-span-3 bg-[#F5F0EB] border border-[#C4B9B0] rounded-xl p-7">
+                <div class="flex items-center gap-3 mb-3">
+                  <span class="stage-badge">02</span>
+                  <span class="font-display font-bold uppercase text-xs tracking-widest text-[#FF8C00]"><i
+                      class="fa-solid fa-shield mr-1"></i>Uplift Resistance</span>
+                </div>
+                <h4 class="font-display font-black text-xl md:text-2xl text-[#1A1A1A] mb-1">Sealing Layer</h4>
+                <p class="text-slate-500 italic mb-4"><span class="zh-word" data-tip="qíng kuàng èr · Scenario 2">情況二</span>：<span class="zh-word" data-tip="fáng shuǐ fēng dǐ céng · Waterproof sealing layer at base">防水封底層</span> — <span class="zh-word" data-tip="zǔ duàn shuǐ yā · Block water pressure">阻斷水壓</span>，<span class="zh-word" data-tip="tí shēng kàng fú · Improve uplift resistance">提升抗浮</span></p>
+                <p class="text-slate-700 leading-relaxed mb-3">
+                  A waterproof layer exists at the base. The phreatic surface sits within the excavation; water pressure still acts upward,
+                  but the <b>sealing layer significantly improves anti-uplift capacity</b>.
+                </p>
+                <p class="text-xs text-slate-500 italic border-l-2 border-slate-300 pl-3">
+                  There is a sealing layer at the bottom. Water pressure still acts upward, but the sealing layer
+                  improves uplift resistance.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- SCENARIO 3 -->
+          <div class="md:pl-20 relative">
+            <div class="hidden md:block absolute left-[19px] top-2 timeline-dot"></div>
+            <div class="grid md:grid-cols-5 gap-6 items-stretch">
+              <div class="md:col-span-2 blueprint-bg rounded-md p-6 text-white">
+                <svg viewBox="0 0 200 180" class="w-full">
+                  <rect x="20" y="40" width="160" height="60" fill="#334155" opacity=".6" />
+                  <rect x="20" y="100" width="160" height="40" fill="#475569" opacity=".9" />
+                  <text x="100" y="125" fill="#cbd5e1" font-size="9" text-anchor="middle" font-family="Montserrat"
+                    font-weight="700">LOW-PERMEABLE</text>
+                  <g stroke="#38bdf8" stroke-width="1.5" fill="#38bdf8" opacity=".6">
+                    <line x1="60" y1="170" x2="60" y2="148" />
+                    <polygon points="57,151 63,151 60,145" />
+                    <line x1="140" y1="170" x2="140" y2="148" />
+                    <polygon points="137,151 143,151 140,145" />
+                  </g>
+                  <text x="100" y="35" fill="#FF8C00" font-size="10" text-anchor="middle" font-family="Montserrat"
+                    font-weight="700">FLOW REDUCED ↓</text>
+                </svg>
+                <div class="mt-3 text-center">
+                  <span
+                    class="inline-block bg-sky-500 text-white font-display font-black px-4 py-1.5 rounded-sm text-sm uppercase">Low
+                    Risk</span>
+                </div>
+              </div>
+              <div class="md:col-span-3 bg-[#F5F0EB] border border-[#C4B9B0] rounded-xl p-7">
+                <div class="flex items-center gap-3 mb-3">
+                  <span class="stage-badge bg-sky-500">03</span>
+                  <span class="font-display font-bold uppercase text-xs tracking-widest text-sky-600"><i
+                      class="fa-solid fa-filter mr-1"></i>Flow Reduction</span>
+                </div>
+                <h4 class="font-display font-black text-xl md:text-2xl text-[#1A1A1A] mb-1">Low-Permeable Layer</h4>
+                <p class="text-slate-500 italic mb-4"><span class="zh-word" data-tip="qíng kuàng sān · Scenario 3">情況三</span>：<span class="zh-word" data-tip="qiàn rù dī shèn tòu tǔ céng · Embedded in low-permeability soil layer">嵌入低滲透土層</span> — <span class="zh-word" data-tip="jiàng dī liú sù · Reduce flow velocity">降低流速</span>，<span class="zh-word" data-tip="jiǎn shǎo fēng xiǎn · Reduce risk of uplift">減少風險</span></p>
+                <p class="text-slate-700 leading-relaxed mb-3">
+                  The excavation is embedded in a low-permeability soil layer. This layer <b>slows water flow</b>,
+                  reducing the risk of uplift force.
+                </p>
+                <p class="text-xs text-slate-500 italic border-l-2 border-slate-300 pl-3">
+                  The excavation is embedded in a low-permeable layer. This reduces water flow, decreasing the risk of
+                  uplift.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- SCENARIO 4 -->
+          <div class="md:pl-20 relative">
+            <div class="hidden md:block absolute left-[19px] top-2 timeline-dot"
+              style="background:#dc2626;box-shadow:0 0 0 3px #dc2626"></div>
+            <div class="grid md:grid-cols-5 gap-6 items-stretch">
+              <div class="md:col-span-2 blueprint-bg rounded-md p-6 text-white">
+                <svg viewBox="0 0 200 180" class="w-full">
+                  <rect x="20" y="40" width="160" height="80" fill="#334155" opacity=".6" />
+                  <rect x="20" y="120" width="160" height="25" fill="#1e293b" />
+                  <text x="100" y="137" fill="#cbd5e1" font-size="9" text-anchor="middle" font-family="Montserrat"
+                    font-weight="700">IMPERMEABLE</text>
+                  <g stroke="#ef4444" stroke-width="3" fill="#ef4444">
+                    <line x1="60" y1="170" x2="60" y2="150" />
+                    <polygon points="55,154 65,154 60,144" />
+                    <line x1="100" y1="170" x2="100" y2="150" />
+                    <polygon points="95,154 105,154 100,144" />
+                    <line x1="140" y1="170" x2="140" y2="150" />
+                    <polygon points="135,154 145,154 140,144" />
+                  </g>
+                  <text x="100" y="35" fill="#ef4444" font-size="10" text-anchor="middle" font-family="Montserrat"
+                    font-weight="700">HIGH-RISK ZONE ⚠</text>
+                </svg>
+                <div class="mt-3 text-center">
+                  <span
+                    class="inline-block bg-red-600 text-white font-display font-black px-4 py-1.5 rounded-sm text-sm uppercase">Danger
+                    ⚠</span>
+                </div>
+              </div>
+              <div class="md:col-span-3 bg-[#FDF0EE] border border-red-300 rounded-xl p-7">
+                <div class="flex items-center gap-3 mb-3">
+                  <span class="stage-badge bg-red-600">04</span>
+                  <span class="font-display font-bold uppercase text-xs tracking-widest text-red-600"><i
+                      class="fa-solid fa-triangle-exclamation mr-1"></i>High-Risk Concentration</span>
+                </div>
+                <h4 class="font-display font-black text-xl md:text-2xl text-[#1A1A1A] mb-1">Impermeable Layer Below</h4>
+                <p class="text-slate-500 italic mb-4"><span class="zh-word" data-tip="qíng kuàng sì · Scenario 4">情況四</span>：<span class="zh-word" data-tip="dǐ bù bù tòu shuǐ céng · Impermeable layer at the bottom">底部不透水層</span> — <span class="zh-word" data-tip="yā lì jí zhōng · Pressure concentration">壓力集中</span>，<span class="zh-word" data-tip="jí yì lóng qǐ · Highly prone to heave/uplift">極易隆起</span></p>
+                <p class="text-slate-700 leading-relaxed mb-3">
+                  A near-impermeable layer exists below the excavation base. Groundwater cannot flow freely,
+                  causing <b>water pressure to concentrate at the base</b>. If the design is inadequate, bottom heave may occur.
+                </p>
+                <p class="text-xs text-slate-500 italic border-l-2 border-red-300 pl-3">
+                  Water pressure concentrates at the base. If not properly designed, bottom heave may occur.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Comparison summary -->
+      <div class="mt-16 bg-[#1A1A1A] text-white p-7 md:p-10 rounded-2xl">
+        <h4 class="font-display font-black text-xl md:text-2xl uppercase mb-6">Comparison Matrix · Quick Reference</h4>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead>
+              <tr class="border-b border-[#FF8C00]/40 text-[#FF8C00] uppercase text-xs tracking-widest">
+                <th class="py-3 pr-4">Scenario</th>
+                <th class="py-3 pr-4">Condition</th>
+                <th class="py-3 pr-4">Mechanism</th>
+                <th class="py-3 pr-4">Risk Level</th>
+              </tr>
+            </thead>
+            <tbody class="text-slate-300">
+              <tr class="border-b border-slate-800">
+                <td class="py-3 pr-4 font-bold text-white">01 · Concrete</td>
+                <td class="py-3 pr-4">G &gt; A</td>
+                <td class="py-3 pr-4">Weight overcomes uplift</td>
+                <td class="py-3 pr-4 text-green-400 font-bold">SAFE</td>
+              </tr>
+              <tr class="border-b border-slate-800">
+                <td class="py-3 pr-4 font-bold text-white">02 · Sealing</td>
+                <td class="py-3 pr-4">Sealed base</td>
+                <td class="py-3 pr-4">Resistance increased</td>
+                <td class="py-3 pr-4 text-[#FF8C00] font-bold">MANAGED</td>
+              </tr>
+              <tr class="border-b border-slate-800">
+                <td class="py-3 pr-4 font-bold text-white">03 · Low Perm.</td>
+                <td class="py-3 pr-4">Embedded layer</td>
+                <td class="py-3 pr-4">Flow reduced</td>
+                <td class="py-3 pr-4 text-sky-400 font-bold">LOW</td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4 font-bold text-white">04 · Impermeable</td>
+                <td class="py-3 pr-4">Trapped pressure</td>
+                <td class="py-3 pr-4">Concentrated uplift</td>
+                <td class="py-3 pr-4 text-red-500 font-bold">HIGH ⚠</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="siteFooter" class="bg-[#1A1A1A] text-white pt-16 pb-8 mt-10 border-t-4 border-[#FF8C00] hidden">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-12">
+        <div class="text-[#FF8C00] font-display font-bold uppercase tracking-[0.4em] text-xs mb-4">— End of Presentation
+          —</div>
+        <h2 class="font-display font-black text-5xl md:text-8xl tracking-tight">
+          TERIMA<span class="text-[#FF8C00]">.</span>KASIH
+        </h2>
+        <div class="mt-4 text-slate-400 italic max-w-2xl mx-auto">
+          “Building with Integrity, Strong into the Future.”
+        </div>
+        <div class="mt-2 text-slate-500 text-sm"><span class="zh-word" data-tip="jiǎn bào jié shù, xiè xiè líng tīng · Presentation ends, thank you for listening">簡報結束，謝謝聆聽！</span> · Thank you for listening.</div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-10 border-t border-slate-800 pt-10">
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-8 h-8 rounded-md bg-[#FF8C00] flex items-center justify-center"><i
+                class="fa-solid fa-helmet-safety text-black"></i></div>
+            <div class="font-display font-extrabold uppercase tracking-widest">Hydraulic Heave</div>
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            A comprehensive analysis of the hydraulic heave phenomenon in deep excavations — as part of foundation engineering studies (<span class="zh-word" data-tip="jī chǔ gōng chéng · Foundation engineering / geotechnical engineering">基礎工程</span>).
+          </p>
+        </div>
+
+        <div>
+          <div class="font-display font-bold uppercase tracking-widest text-sm text-[#FF8C00] mb-4">Contact</div>
+          <ul class="space-y-2 text-slate-400 text-sm">
+            <li><i class="fa-solid fa-user w-5 text-[#FF8C00]"></i> Mukti Hadi Trinanda · <span class="zh-word" data-tip="mù ān háo · Chinese name of Mukti Hadi Trinanda">木安豪</span></li>
+            <li><i class="fa-solid fa-id-card w-5 text-[#FF8C00]"></i> W1435407</li>
+            <li><i class="fa-solid fa-envelope w-5 text-[#FF8C00]"></i> <a href="mailto:muktihadi5641@gmail.com" class="hover:text-[#FF8C00] transition">muktihadi5641@gmail.com</a></li>
+            <li><i class="fa-solid fa-building w-5 text-[#FF8C00]"></i> Foundation Engineering Dept.</li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="font-display font-bold uppercase tracking-widest text-sm text-[#FF8C00] mb-4">Connect</div>
+          <div class="flex gap-3">
+            <a href="https://www.linkedin.com/in/muktihadi/" target="_blank" rel="noopener"
+              class="w-10 h-10 rounded-md border border-slate-700 flex items-center justify-center hover:bg-[#FF8C00] hover:border-[#FF8C00] hover:text-black transition"><i
+                class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://www.instagram.com/muktihadi_" target="_blank" rel="noopener"
+              class="w-10 h-10 rounded-md border border-slate-700 flex items-center justify-center hover:bg-[#FF8C00] hover:border-[#FF8C00] hover:text-black transition"><i
+                class="fa-brands fa-instagram"></i></a>
+            <a href="#"
+              class="w-10 h-10 rounded-md border border-slate-700 flex items-center justify-center hover:bg-[#FF8C00] hover:border-[#FF8C00] hover:text-black transition"><i
+                class="fa-brands fa-github"></i></a>
+            <a href="#"
+              class="w-10 h-10 rounded-md border border-slate-700 flex items-center justify-center hover:bg-[#FF8C00] hover:border-[#FF8C00] hover:text-black transition"><i
+                class="fa-brands fa-x-twitter"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-800 mt-10 pt-6 text-center text-xs text-slate-500 uppercase tracking-widest">
+        © 2026 · Mukti Hadi Trinanda · All Rights Reserved
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab-btn');
+    const sections = document.querySelectorAll('.section');
+    function switchTab(name) {
+      const current = document.querySelector('.section.active');
+      const next = document.getElementById(name);
+      if (!next || current === next) return;
+
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+      document.getElementById('mobileMenu').classList.remove('open');
+      window.scrollTo({ top: 0 });
+
+      const activate = () => {
+        next.classList.add('active');
+        document.getElementById('siteFooter').classList.toggle('hidden', name !== 'topik2');
+      };
+
+      if (current) {
+        current.classList.remove('active');
+        current.classList.add('leaving');
+        current.addEventListener('animationend', () => {
+          current.classList.remove('leaving');
+          activate();
+        }, { once: true });
+      } else {
+        activate();
+      }
+    }
+    tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+
+    document.getElementById('burger').addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.toggle('open');
+    });
+
+    // ── SPLASH ──────────────────────────────────────
+    (function () {
+      const splash = document.getElementById('splash');
+      const backBtn = document.getElementById('splash-back');
+      if (!splash) return;
+
+      requestAnimationFrame(() => splash.classList.add('loaded'));
+      document.body.style.overflow = 'hidden';
+
+      function hideSplash() {
+        splash.classList.remove('entering');
+        splash.classList.add('exit');
+        splash.addEventListener('animationend', () => {
+          splash.classList.remove('exit');
+          splash.style.display = 'none';
+          document.body.style.overflow = '';
+        }, { once: true });
+      }
+
+      function showSplash() {
+        splash.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            splash.classList.add('entering');
+            splash.addEventListener('animationend', () => {
+              splash.classList.remove('entering');
+            }, { once: true });
+          });
+        });
+      }
+
+      splash.addEventListener('click', hideSplash);
+      if (backBtn) backBtn.addEventListener('click', showSplash);
+    })();
+    // ────────────────────────────────────────────────
+  </script>
+</body>
+
+</html>
