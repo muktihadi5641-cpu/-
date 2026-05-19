@@ -1,0 +1,5 @@
+*.pptx
+*.py
+*.txt
+slide_images/
+.claude/
