@@ -528,8 +528,20 @@
   </section>
 
   <!-- PENGERTIAN -->
-  <section id="pengertian" class="section pantone-bg">
-    <div class="max-w-7xl mx-auto px-6 py-20">
+  <section id="pengertian" class="section pantone-bg relative overflow-hidden">
+    <!-- Background construction video at 40% opacity -->
+    <video autoplay muted loop playsinline preload="auto"
+      class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+      style="opacity: 0.4;">
+      <source src="https://videos.pexels.com/video-files/2516160/2516160-hd_1920_1080_25fps.mp4" type="video/mp4">
+      <source src="https://videos.pexels.com/video-files/4480/4480-hd_1920_1080_25fps.mp4" type="video/mp4">
+      <source src="https://cdn.pixabay.com/video/2020/04/15/35907-410992783_large.mp4" type="video/mp4">
+    </video>
+    <!-- Subtle tint overlay so text remains readable on top of moving video -->
+    <div class="absolute inset-0 pointer-events-none z-0"
+      style="background: linear-gradient(rgba(173,168,165,0.35), rgba(245,240,235,0.42));"></div>
+
+    <div class="max-w-7xl mx-auto px-6 py-20 relative z-10">
       <div class="mb-12 max-w-4xl">
         <div class="text-[#FF8C00] font-display font-bold uppercase tracking-widest text-base mb-4">
           <i class="fa-solid fa-book-open mr-2"></i>Overview
@@ -1414,6 +1426,13 @@
       if (backBtn) backBtn.addEventListener('click', showSplash);
     })();
     // ────────────────────────────────────────────────
+
+    // ── Background videos: slow down to 0.6× so they feel ambient, not distracting ──
+    document.querySelectorAll('section video').forEach(v => {
+      v.playbackRate = 0.6;
+      // Best-effort: re-apply if the source swaps to a fallback
+      v.addEventListener('loadeddata', () => { v.playbackRate = 0.6; });
+    });
   </script>
 </body>
 
