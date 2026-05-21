@@ -429,25 +429,25 @@
       background-size: 80px 80px, 80px 80px, 20px 20px, 20px 20px;
     }
 
-    /* ── Construction-themed animated fallback (auto-shows if video doesn't load) ── */
-    .construction-anim {
-      position: absolute; inset: 0;
+    /* ── YouTube background videos for Overview / Topic 1 / Topic 2 ── */
+    .yt-bg-wrapper {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .yt-bg-iframe {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 0;
       pointer-events: none;
       opacity: 0.4;
-      background-image:
-        repeating-linear-gradient(
-          45deg,
-          rgba(255,140,0,.35) 0px, rgba(255,140,0,.35) 24px,
-          rgba(26,26,26,.55) 24px, rgba(26,26,26,.55) 48px,
-          rgba(255,140,0,.35) 48px, rgba(255,140,0,.35) 72px,
-          rgba(60,60,60,.4) 72px, rgba(60,60,60,.4) 96px
-        );
-      background-size: 200% 200%;
-      animation: scaffoldDrift 30s linear infinite;
-    }
-    @keyframes scaffoldDrift {
-      0%   { background-position:   0%   0%; }
-      100% { background-position: 200% 200%; }
+      /* Default — JS resizes to cover the section in 16:9 */
+      width: 100%;
+      height: 100%;
     }
   </style>
 </head>
@@ -550,20 +550,14 @@
 
   <!-- PENGERTIAN -->
   <section id="pengertian" class="section pantone-bg relative overflow-hidden">
-    <!-- Animated construction scaffold pattern (always visible, will fade if video loads) -->
-    <div id="overview-fallback" class="construction-anim z-0"></div>
-
-    <!-- Background construction video at 40% opacity (best-effort; may fail to hotlink) -->
-    <video id="overview-video" autoplay muted loop playsinline preload="auto"
-      class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 opacity-0 transition-opacity duration-700"
-      style="--final-opacity: 0.4;">
-      <source src="https://videos.pexels.com/video-files/4881345/4881345-hd_1920_1080_25fps.mp4" type="video/mp4">
-      <source src="https://videos.pexels.com/video-files/2519660/2519660-uhd_2560_1440_25fps.mp4" type="video/mp4">
-      <source src="https://videos.pexels.com/video-files/4480/4480-hd_1920_1080_25fps.mp4" type="video/mp4">
-      <source src="https://videos.pexels.com/video-files/8035691/8035691-hd_1920_1080_25fps.mp4" type="video/mp4">
-    </video>
-
-    <!-- Subtle tint overlay so text remains readable -->
+    <!-- YouTube background video (Overview) -->
+    <div class="yt-bg-wrapper">
+      <iframe class="yt-bg-iframe"
+        src="https://www.youtube-nocookie.com/embed/IibDkSDNL3Y?autoplay=1&mute=1&loop=1&playlist=IibDkSDNL3Y&controls=0&modestbranding=1&disablekb=1&iv_load_policy=3&showinfo=0&rel=0&playsinline=1&fs=0"
+        title="Overview background"
+        allow="autoplay; encrypted-media"></iframe>
+    </div>
+    <!-- Subtle tint overlay so dark body text stays readable -->
     <div class="absolute inset-0 pointer-events-none z-0"
       style="background: linear-gradient(rgba(173,168,165,0.30), rgba(245,240,235,0.40));"></div>
 
@@ -809,8 +803,19 @@
   </section>
 
   <!-- TOPIK 1 -->
-  <section id="topik1" class="section pantone-bg">
-    <div class="max-w-7xl mx-auto px-6 py-20">
+  <section id="topik1" class="section pantone-bg relative overflow-hidden">
+    <!-- YouTube background video (Topic 1) -->
+    <div class="yt-bg-wrapper">
+      <iframe class="yt-bg-iframe"
+        src="https://www.youtube-nocookie.com/embed/8eo_LF-agNg?autoplay=1&mute=1&loop=1&playlist=8eo_LF-agNg&controls=0&modestbranding=1&disablekb=1&iv_load_policy=3&showinfo=0&rel=0&playsinline=1&fs=0"
+        title="Topic 1 background"
+        allow="autoplay; encrypted-media"></iframe>
+    </div>
+    <!-- Subtle tint overlay so dark body text stays readable -->
+    <div class="absolute inset-0 pointer-events-none z-0"
+      style="background: linear-gradient(rgba(173,168,165,0.30), rgba(245,240,235,0.40));"></div>
+
+    <div class="max-w-7xl mx-auto px-6 py-20 relative z-10">
       <div class="mb-10">
         <div class="text-[#FF8C00] font-display font-bold uppercase tracking-widest text-base mb-3"><i
             class="fa-solid fa-layer-group mr-2"></i>Topik 1</div>
@@ -1026,8 +1031,19 @@
   </section>
 
   <!-- TOPIK 2 -->
-  <section id="topik2" class="section pantone-bg">
-    <div class="max-w-7xl mx-auto px-6 py-20">
+  <section id="topik2" class="section pantone-bg relative overflow-hidden">
+    <!-- YouTube background video (Topic 2) -->
+    <div class="yt-bg-wrapper">
+      <iframe class="yt-bg-iframe"
+        src="https://www.youtube-nocookie.com/embed/nwLQ3s3Fwtk?autoplay=1&mute=1&loop=1&playlist=nwLQ3s3Fwtk&controls=0&modestbranding=1&disablekb=1&iv_load_policy=3&showinfo=0&rel=0&playsinline=1&fs=0"
+        title="Topic 2 background"
+        allow="autoplay; encrypted-media"></iframe>
+    </div>
+    <!-- Subtle tint overlay so dark body text stays readable -->
+    <div class="absolute inset-0 pointer-events-none z-0"
+      style="background: linear-gradient(rgba(173,168,165,0.30), rgba(245,240,235,0.40));"></div>
+
+    <div class="max-w-7xl mx-auto px-6 py-20 relative z-10">
       <div class="mb-10">
         <div class="text-[#FF8C00] font-display font-bold uppercase tracking-widest text-base mb-3"><i
             class="fa-solid fa-water mr-2"></i>Topik 2</div>
@@ -1453,33 +1469,36 @@
     })();
     // ────────────────────────────────────────────────
 
-    // ── Background video: fade in only if it actually loads & plays.
-    // If it fails (404, hotlink-block, autoplay-block), the CSS scaffold
-    // animation stays visible underneath.
-    (function () {
-      const v = document.getElementById('overview-video');
-      const fb = document.getElementById('overview-fallback');
-      if (!v) return;
+    // ── Size YouTube background iframes to "cover" their sections (16:9 aspect).
+    // Sections are display:none until activated, so we re-size whenever we
+    // switch tabs and on window resize.
+    function sizeYouTubeBackgrounds() {
+      document.querySelectorAll('.yt-bg-iframe').forEach(iframe => {
+        const wrapper = iframe.parentElement;
+        if (!wrapper) return;
+        const w = wrapper.offsetWidth;
+        const h = wrapper.offsetHeight;
+        if (w === 0 || h === 0) return; // wrapper not laid out yet
+        const aspect = 16 / 9;
+        // Cover: take the larger of the section's native size vs the size
+        // needed to fill the other axis while preserving 16:9.
+        const targetW = Math.max(w, h * aspect);
+        const targetH = Math.max(h, w / aspect);
+        iframe.style.width  = targetW + 'px';
+        iframe.style.height = targetH + 'px';
+      });
+    }
+    window.addEventListener('load',   sizeYouTubeBackgrounds);
+    window.addEventListener('resize', sizeYouTubeBackgrounds);
 
-      function showVideo() {
-        v.style.opacity = '0.4';
-        if (fb) fb.style.opacity = '0';   // fade out CSS fallback
-      }
-      function keepFallback() {
-        v.style.display = 'none';          // remove video element entirely
-      }
-
-      v.playbackRate = 0.6;
-      v.addEventListener('loadeddata', () => { v.playbackRate = 0.6; });
-      // Use playing event — fires only when the video is genuinely playing
-      v.addEventListener('playing', showVideo, { once: true });
-      v.addEventListener('error',   keepFallback);
-
-      // If after 5 s nothing has started, give up on the video
-      setTimeout(() => {
-        if (v.readyState < 2) keepFallback();
-      }, 5000);
-    })();
+    // Hook into the existing tab system so the iframe gets sized the first
+    // time its section is shown (offsetWidth is 0 while display:none).
+    const _origSwitchTab = window.switchTab;
+    window.switchTab = function (name) {
+      _origSwitchTab(name);
+      // Wait one frame for the section to become display:block, then size.
+      requestAnimationFrame(() => requestAnimationFrame(sizeYouTubeBackgrounds));
+    };
   </script>
 </body>
 
