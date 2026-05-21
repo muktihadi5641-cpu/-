@@ -1413,6 +1413,11 @@
       const activate = () => {
         next.classList.add('active');
         document.getElementById('siteFooter').classList.toggle('hidden', name !== 'topik2');
+        // YouTube iframes are 0×0 while their section is display:none.
+        // Size them now that the section is visible.
+        if (typeof sizeYouTubeBackgrounds === 'function') {
+          requestAnimationFrame(() => requestAnimationFrame(sizeYouTubeBackgrounds));
+        }
       };
 
       if (current) {
@@ -1470,18 +1475,19 @@
     // ────────────────────────────────────────────────
 
     // ── Size YouTube background iframes to "cover" their sections (16:9 aspect).
-    // Sections are display:none until activated, so we re-size whenever we
-    // switch tabs and on window resize.
+    // Sections are display:none until activated, so dimensions are only valid
+    // after switchTab() flips the class. We're called from switchTab() above,
+    // from window resize, and from a ResizeObserver on each section (catches
+    // content-driven height changes too).
     function sizeYouTubeBackgrounds() {
       document.querySelectorAll('.yt-bg-iframe').forEach(iframe => {
         const wrapper = iframe.parentElement;
         if (!wrapper) return;
         const w = wrapper.offsetWidth;
         const h = wrapper.offsetHeight;
-        if (w === 0 || h === 0) return; // wrapper not laid out yet
+        if (w === 0 || h === 0) return; // section not laid out yet
         const aspect = 16 / 9;
-        // Cover: take the larger of the section's native size vs the size
-        // needed to fill the other axis while preserving 16:9.
+        // Cover: enlarge so both dimensions ≥ wrapper, preserving 16:9.
         const targetW = Math.max(w, h * aspect);
         const targetH = Math.max(h, w / aspect);
         iframe.style.width  = targetW + 'px';
@@ -1491,14 +1497,26 @@
     window.addEventListener('load',   sizeYouTubeBackgrounds);
     window.addEventListener('resize', sizeYouTubeBackgrounds);
 
-    // Hook into the existing tab system so the iframe gets sized the first
-    // time its section is shown (offsetWidth is 0 while display:none).
-    const _origSwitchTab = window.switchTab;
-    window.switchTab = function (name) {
-      _origSwitchTab(name);
-      // Wait one frame for the section to become display:block, then size.
-      requestAnimationFrame(() => requestAnimationFrame(sizeYouTubeBackgrounds));
-    };
+    // Re-size whenever a section's own dimensions change (content load,
+    // images decoding, etc).
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(sizeYouTubeBackgrounds);
+      document.querySelectorAll('.section').forEach(s => ro.observe(s));
+    }
+
+    // Belt-and-braces: also re-size when any .section gains the .active class
+    // (covers any code path that activates a section without going through
+    // switchTab).
+    new MutationObserver(muts => {
+      for (const m of muts) {
+        if (m.target.classList && m.target.classList.contains('active')) {
+          requestAnimationFrame(sizeYouTubeBackgrounds);
+          break;
+        }
+      }
+    }).observe(document.body, {
+      subtree: true, attributes: true, attributeFilter: ['class']
+    });
   </script>
 </body>
 
