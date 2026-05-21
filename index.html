@@ -428,6 +428,27 @@
         linear-gradient(90deg, rgba(0,0,0,.07) 1px, transparent 1px);
       background-size: 80px 80px, 80px 80px, 20px 20px, 20px 20px;
     }
+
+    /* ── Construction-themed animated fallback (auto-shows if video doesn't load) ── */
+    .construction-anim {
+      position: absolute; inset: 0;
+      pointer-events: none;
+      opacity: 0.4;
+      background-image:
+        repeating-linear-gradient(
+          45deg,
+          rgba(255,140,0,.35) 0px, rgba(255,140,0,.35) 24px,
+          rgba(26,26,26,.55) 24px, rgba(26,26,26,.55) 48px,
+          rgba(255,140,0,.35) 48px, rgba(255,140,0,.35) 72px,
+          rgba(60,60,60,.4) 72px, rgba(60,60,60,.4) 96px
+        );
+      background-size: 200% 200%;
+      animation: scaffoldDrift 30s linear infinite;
+    }
+    @keyframes scaffoldDrift {
+      0%   { background-position:   0%   0%; }
+      100% { background-position: 200% 200%; }
+    }
   </style>
 </head>
 
@@ -529,17 +550,22 @@
 
   <!-- PENGERTIAN -->
   <section id="pengertian" class="section pantone-bg relative overflow-hidden">
-    <!-- Background construction video at 40% opacity -->
-    <video autoplay muted loop playsinline preload="auto"
-      class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
-      style="opacity: 0.4;">
-      <source src="https://videos.pexels.com/video-files/2516160/2516160-hd_1920_1080_25fps.mp4" type="video/mp4">
+    <!-- Animated construction scaffold pattern (always visible, will fade if video loads) -->
+    <div id="overview-fallback" class="construction-anim z-0"></div>
+
+    <!-- Background construction video at 40% opacity (best-effort; may fail to hotlink) -->
+    <video id="overview-video" autoplay muted loop playsinline preload="auto"
+      class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 opacity-0 transition-opacity duration-700"
+      style="--final-opacity: 0.4;">
+      <source src="https://videos.pexels.com/video-files/4881345/4881345-hd_1920_1080_25fps.mp4" type="video/mp4">
+      <source src="https://videos.pexels.com/video-files/2519660/2519660-uhd_2560_1440_25fps.mp4" type="video/mp4">
       <source src="https://videos.pexels.com/video-files/4480/4480-hd_1920_1080_25fps.mp4" type="video/mp4">
-      <source src="https://cdn.pixabay.com/video/2020/04/15/35907-410992783_large.mp4" type="video/mp4">
+      <source src="https://videos.pexels.com/video-files/8035691/8035691-hd_1920_1080_25fps.mp4" type="video/mp4">
     </video>
-    <!-- Subtle tint overlay so text remains readable on top of moving video -->
+
+    <!-- Subtle tint overlay so text remains readable -->
     <div class="absolute inset-0 pointer-events-none z-0"
-      style="background: linear-gradient(rgba(173,168,165,0.35), rgba(245,240,235,0.42));"></div>
+      style="background: linear-gradient(rgba(173,168,165,0.30), rgba(245,240,235,0.40));"></div>
 
     <div class="max-w-7xl mx-auto px-6 py-20 relative z-10">
       <div class="mb-12 max-w-4xl">
@@ -1427,12 +1453,33 @@
     })();
     // ────────────────────────────────────────────────
 
-    // ── Background videos: slow down to 0.6× so they feel ambient, not distracting ──
-    document.querySelectorAll('section video').forEach(v => {
+    // ── Background video: fade in only if it actually loads & plays.
+    // If it fails (404, hotlink-block, autoplay-block), the CSS scaffold
+    // animation stays visible underneath.
+    (function () {
+      const v = document.getElementById('overview-video');
+      const fb = document.getElementById('overview-fallback');
+      if (!v) return;
+
+      function showVideo() {
+        v.style.opacity = '0.4';
+        if (fb) fb.style.opacity = '0';   // fade out CSS fallback
+      }
+      function keepFallback() {
+        v.style.display = 'none';          // remove video element entirely
+      }
+
       v.playbackRate = 0.6;
-      // Best-effort: re-apply if the source swaps to a fallback
       v.addEventListener('loadeddata', () => { v.playbackRate = 0.6; });
-    });
+      // Use playing event — fires only when the video is genuinely playing
+      v.addEventListener('playing', showVideo, { once: true });
+      v.addEventListener('error',   keepFallback);
+
+      // If after 5 s nothing has started, give up on the video
+      setTimeout(() => {
+        if (v.readyState < 2) keepFallback();
+      }, 5000);
+    })();
   </script>
 </body>
 
