@@ -429,6 +429,192 @@
       background-size: 80px 80px, 80px 80px, 20px 20px, 20px 20px;
     }
 
+    /* ── Hydraulic-heave SVG animation modal ── */
+    #heaveAnimBtn {
+      transition: all .25s ease;
+    }
+    #heaveAnimBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px -8px rgba(255,140,0,.55);
+    }
+    #heaveAnimModal {
+      position: fixed; inset: 0; z-index: 10000;
+      display: none;
+      align-items: center; justify-content: center;
+      background: rgba(0,0,0,.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 1rem;
+    }
+    #heaveAnimModal.open {
+      display: flex;
+      animation: fadeIn .3s ease;
+    }
+    @keyframes fadeIn { from {opacity:0} to {opacity:1} }
+    #heaveAnimModal .panel {
+      background: #0f172a;
+      border: 1.5px solid #FF8C00;
+      border-radius: 18px;
+      width: 100%; max-width: 1100px; max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: 0 30px 80px rgba(0,0,0,.6);
+      position: relative;
+    }
+    #heaveAnimModal .panel-head {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(255,140,0,.25);
+      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(180deg, rgba(255,140,0,.08), transparent);
+    }
+    #heaveAnimModal .close-btn {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.06);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+    }
+    #heaveAnimModal .close-btn:hover {
+      background: #ef4444; transform: scale(1.05);
+    }
+    #heaveAnimModal .stage-pill {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .35rem .9rem; border-radius: 999px;
+      background: #FF8C00; color: #000;
+      font-family: 'Montserrat', sans-serif; font-weight: 800;
+      font-size: 11px; letter-spacing: .15em; text-transform: uppercase;
+    }
+    #heaveAnimSvg {
+      width: 100%; height: auto;
+      background: radial-gradient(ellipse at 50% 30%, #1e293b 0%, #0f172a 100%);
+      display: block;
+    }
+    .narrative-card {
+      padding: 1.5rem;
+      background: linear-gradient(180deg, #1A1A1A, #0c1118);
+      color: #fff;
+      min-height: 130px;
+      transition: opacity .4s ease;
+    }
+    .narrative-card .stage-num {
+      color: #FF8C00; font-family: 'Bebas Neue', sans-serif;
+      font-size: 60px; line-height: 1; font-weight: 900;
+      float: left; margin-right: 1rem;
+    }
+    .narrative-card .stage-title {
+      font-family: 'Montserrat', sans-serif; font-weight: 800;
+      font-size: 22px; margin-bottom: .35rem;
+    }
+    .narrative-card .stage-mandarin {
+      color: #FF8C00; font-size: 14px; margin-bottom: .5rem;
+    }
+    .narrative-card .stage-desc {
+      color: #cbd5e1; font-size: 14px; line-height: 1.55;
+    }
+    .anim-controls {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid rgba(255,140,0,.2);
+      display: flex; align-items: center; gap: .75rem;
+      background: #0a0f17;
+    }
+    .anim-controls button {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      background: rgba(255,140,0,.12);
+      color: #FF8C00;
+      border: 1px solid rgba(255,140,0,.3);
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+    }
+    .anim-controls button:hover { background: #FF8C00; color: #000; }
+    .anim-controls .progress {
+      flex: 1; height: 6px;
+      background: rgba(255,255,255,.08);
+      border-radius: 999px; overflow: hidden;
+    }
+    .anim-controls .progress > div {
+      height: 100%; background: linear-gradient(90deg, #FF8C00, #ef4444);
+      width: 20%;
+      transition: width .25s linear;
+      border-radius: 999px;
+    }
+
+    /* SVG animation per-stage visibility */
+    .heave-anim .a-water-outside,
+    .heave-anim .a-droplet,
+    .heave-anim .a-seepage,
+    .heave-anim .a-soil-weight,
+    .heave-anim .a-failure,
+    .heave-anim .a-equation,
+    .heave-anim .a-bulge,
+    .heave-anim .a-crack,
+    .heave-anim .a-tilt-l,
+    .heave-anim .a-tilt-r {
+      opacity: 0;
+      transition: opacity .6s ease, transform .8s ease;
+    }
+    /* Stage 1: setup (default static) */
+    /* Stage 2: water rises and droplets flow */
+    .heave-anim.s2 .a-water-outside,
+    .heave-anim.s2 .a-droplet,
+    .heave-anim.s3 .a-water-outside,
+    .heave-anim.s3 .a-droplet,
+    .heave-anim.s4 .a-water-outside,
+    .heave-anim.s4 .a-droplet,
+    .heave-anim.s5 .a-water-outside,
+    .heave-anim.s5 .a-droplet {
+      opacity: 1;
+    }
+    .heave-anim.s2 .a-droplet,
+    .heave-anim.s3 .a-droplet,
+    .heave-anim.s4 .a-droplet,
+    .heave-anim.s5 .a-droplet {
+      animation: dropletFlow 2s linear infinite;
+    }
+    @keyframes dropletFlow {
+      0%   { transform: translate(0, 0); opacity: 0; }
+      20%  { opacity: 1; }
+      80%  { opacity: 1; }
+      100% { transform: translate(0, -60px); opacity: 0; }
+    }
+    /* Stage 3: seepage + soil weight arrows */
+    .heave-anim.s3 .a-seepage,
+    .heave-anim.s3 .a-soil-weight,
+    .heave-anim.s4 .a-seepage,
+    .heave-anim.s4 .a-soil-weight,
+    .heave-anim.s5 .a-seepage,
+    .heave-anim.s5 .a-soil-weight {
+      opacity: 1;
+    }
+    .heave-anim.s3 .a-seepage { animation: pulse 1.8s ease-in-out infinite; }
+    .heave-anim.s4 .a-seepage { animation: pulse 1s ease-in-out infinite; transform: scale(1.15); }
+    .heave-anim.s5 .a-seepage { animation: pulse .6s ease-in-out infinite; transform: scale(1.35); }
+    @keyframes pulse {
+      0%, 100% { filter: drop-shadow(0 0 0 rgba(56,189,248,0)); }
+      50%      { filter: drop-shadow(0 0 8px rgba(56,189,248,.9)); }
+    }
+    /* Stage 4: failure plane + equation */
+    .heave-anim.s4 .a-failure,
+    .heave-anim.s4 .a-equation,
+    .heave-anim.s5 .a-failure,
+    .heave-anim.s5 .a-equation { opacity: 1; }
+    .heave-anim.s4 .a-failure,
+    .heave-anim.s5 .a-failure {
+      stroke-dasharray: 250;
+      stroke-dashoffset: 0;
+      animation: drawPath 1.5s ease forwards;
+    }
+    @keyframes drawPath {
+      from { stroke-dashoffset: 250; }
+      to   { stroke-dashoffset: 0; }
+    }
+    /* Stage 5: heave deformation */
+    .heave-anim.s5 .a-bulge,
+    .heave-anim.s5 .a-crack { opacity: 1; }
+    .heave-anim.s5 .a-tilt-l { opacity: 1; transform: rotate(-6deg); transform-origin: 120px 320px; }
+    .heave-anim.s5 .a-tilt-r { opacity: 1; transform: rotate(6deg);  transform-origin: 480px 320px; }
+    .heave-anim.s5 .a-pit-floor { transform: translateY(-22px); transition: transform 1s ease; }
+
     /* ── YouTube background videos for Overview / Topic 1 / Topic 2 ── */
     .yt-bg-wrapper {
       position: absolute;
@@ -796,6 +982,16 @@
               </div>
               <div class="text-[11px] uppercase tracking-widest text-slate-400">Excavation Base</div>
             </div>
+          </div>
+
+          <!-- WATCH ANIMATION BUTTON -->
+          <div class="px-4 pb-4 pt-2 border-t border-slate-700/50">
+            <button id="heaveAnimBtn" onclick="openHeaveAnimation()"
+              class="w-full bg-[#FF8C00] hover:bg-orange-500 text-black font-display font-bold uppercase tracking-widest text-sm py-3 px-5 rounded-lg flex items-center justify-center gap-3">
+              <i class="fa-solid fa-circle-play text-lg"></i>
+              <span>Watch Process Animation</span>
+              <span class="text-[10px] opacity-75">· <span class="zh-word" data-tip="guò chéng dòng huà · Process animation">過程動畫</span></span>
+            </button>
           </div>
         </div>
       </div>
@@ -1398,6 +1594,167 @@
     </div>
   </footer>
 
+  <!-- ───────────────── HYDRAULIC HEAVE ANIMATION MODAL ───────────────── -->
+  <div id="heaveAnimModal" role="dialog" aria-modal="true" aria-labelledby="heaveAnimTitle">
+    <div class="panel">
+      <!-- Header -->
+      <div class="panel-head">
+        <div>
+          <div id="heaveAnimTitle" class="font-display font-black text-white text-xl md:text-2xl uppercase">
+            Hydraulic Heave · Process Animation
+          </div>
+          <div class="text-[#FF8C00] text-sm mt-1">
+            <span class="zh-word" data-tip="shuǐ lì lóng qǐ · Hydraulic heave">水力隆起</span><span class="zh-word" data-tip="guò chéng · Process">過程</span><span class="zh-word" data-tip="dòng huà · Animation">動畫</span> ·
+            <span class="text-slate-400">Step-by-step explanation</span>
+          </div>
+        </div>
+        <button class="close-btn" onclick="closeHeaveAnimation()" aria-label="Close">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- SVG ANIMATION STAGE -->
+      <svg id="heaveAnimSvg" class="heave-anim s1" viewBox="0 0 600 480" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="aGSoil" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#7c6e58"/><stop offset="100%" stop-color="#3a3024"/>
+          </linearGradient>
+          <linearGradient id="aGSky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1e293b"/><stop offset="100%" stop-color="#0f172a"/>
+          </linearGradient>
+          <linearGradient id="aGPit" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0a0f17"/><stop offset="100%" stop-color="#172554" stop-opacity=".6"/>
+          </linearGradient>
+          <linearGradient id="aGWater" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0284c7" stop-opacity=".4"/><stop offset="100%" stop-color="#0369a1" stop-opacity=".9"/>
+          </linearGradient>
+          <pattern id="aGroundPattern" patternUnits="userSpaceOnUse" width="20" height="20">
+            <circle cx="2" cy="3" r="1" fill="#5c4a32" opacity=".5"/>
+            <circle cx="14" cy="11" r="1.2" fill="#403425" opacity=".6"/>
+            <circle cx="7" cy="16" r=".8" fill="#5c4a32" opacity=".4"/>
+          </pattern>
+        </defs>
+
+        <!-- SKY -->
+        <rect width="600" height="120" fill="url(#aGSky)"/>
+
+        <!-- LEFT SOIL MASS -->
+        <rect x="0" y="120" width="170" height="280" fill="url(#aGSoil)"/>
+        <rect x="0" y="120" width="170" height="280" fill="url(#aGroundPattern)"/>
+        <!-- GROUND LEVEL line LEFT -->
+        <line x1="0" y1="120" x2="170" y2="120" stroke="#94a3b8" stroke-width="2"/>
+
+        <!-- RIGHT SOIL MASS -->
+        <rect x="430" y="120" width="170" height="280" fill="url(#aGSoil)"/>
+        <rect x="430" y="120" width="170" height="280" fill="url(#aGroundPattern)"/>
+        <line x1="430" y1="120" x2="600" y2="120" stroke="#94a3b8" stroke-width="2"/>
+
+        <!-- WATER TABLE INSIDE THE OUTER SOIL (rises after stage 1) -->
+        <g class="a-water-outside">
+          <rect x="0"   y="200" width="170" height="200" fill="url(#aGWater)" opacity=".55"/>
+          <rect x="430" y="200" width="170" height="200" fill="url(#aGWater)" opacity=".55"/>
+          <line x1="0"   y1="200" x2="170" y2="200" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="6 4"/>
+          <line x1="430" y1="200" x2="600" y2="200" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="6 4"/>
+          <text x="22"  y="194" fill="#38bdf8" font-size="10" font-family="Inter" font-weight="700">GWL</text>
+          <text x="572" y="194" fill="#38bdf8" font-size="10" font-family="Inter" font-weight="700" text-anchor="end">GWL</text>
+        </g>
+
+        <!-- LEFT SHEET PILE -->
+        <g class="a-tilt-l">
+          <rect x="170" y="80" width="12" height="320" fill="#FF8C00" rx="1"/>
+          <rect x="170" y="80" width="4"  height="320" fill="#FFB347" rx="1"/>
+        </g>
+        <text x="176" y="72" fill="#FFB347" font-size="11" font-family="Montserrat" font-weight="700" text-anchor="middle">PILE</text>
+
+        <!-- RIGHT SHEET PILE -->
+        <g class="a-tilt-r">
+          <rect x="418" y="80" width="12" height="320" fill="#FF8C00" rx="1"/>
+          <rect x="418" y="80" width="4"  height="320" fill="#FFB347" rx="1"/>
+        </g>
+        <text x="424" y="72" fill="#FFB347" font-size="11" font-family="Montserrat" font-weight="700" text-anchor="middle">PILE</text>
+
+        <!-- PIT INTERIOR -->
+        <rect x="182" y="120" width="236" height="280" fill="url(#aGPit)"/>
+        <text x="300" y="200" fill="rgba(255,255,255,.5)" font-size="14" font-family="Montserrat" font-weight="700" text-anchor="middle" letter-spacing="3">EXCAVATION PIT</text>
+
+        <!-- PIT FLOOR (bulges in stage 5) -->
+        <g class="a-pit-floor">
+          <rect x="182" y="394" width="236" height="6" fill="#7c6e58"/>
+          <!-- Bulge appears in stage 5 -->
+          <path class="a-bulge" d="M 182,394 Q 300,340 418,394 L 418,400 L 182,400 Z" fill="#9c8d72"/>
+        </g>
+
+        <!-- DROPLETS flowing under piles into pit (animated stage 2+) -->
+        <g class="a-droplet">
+          <circle cx="178" cy="395" r="3" fill="#38bdf8"/>
+          <circle cx="200" cy="395" r="2.5" fill="#38bdf8" opacity=".85"/>
+          <circle cx="225" cy="395" r="2.8" fill="#38bdf8" opacity=".9"/>
+          <circle cx="300" cy="395" r="3.2" fill="#38bdf8"/>
+          <circle cx="375" cy="395" r="2.5" fill="#38bdf8" opacity=".85"/>
+          <circle cx="400" cy="395" r="3" fill="#38bdf8"/>
+          <circle cx="422" cy="395" r="2.8" fill="#38bdf8" opacity=".9"/>
+        </g>
+
+        <!-- SEEPAGE FORCE (upward arrows from below, blue) -->
+        <g class="a-seepage" fill="#38bdf8" stroke="#38bdf8" stroke-width="2.5">
+          <line x1="210" y1="460" x2="210" y2="410"/><polygon points="205,418 215,418 210,402"/>
+          <line x1="250" y1="465" x2="250" y2="410"/><polygon points="245,418 255,418 250,402"/>
+          <line x1="300" y1="470" x2="300" y2="410"/><polygon points="295,418 305,418 300,402"/>
+          <line x1="350" y1="465" x2="350" y2="410"/><polygon points="345,418 355,418 350,402"/>
+          <line x1="390" y1="460" x2="390" y2="410"/><polygon points="385,418 395,418 390,402"/>
+        </g>
+        <text class="a-seepage" x="300" y="478" fill="#38bdf8" font-size="13" font-family="Montserrat" font-weight="700" text-anchor="middle">A · SEEPAGE FORCE ↑</text>
+
+        <!-- SOIL WEIGHT (downward, orange) on both sides -->
+        <g class="a-soil-weight" fill="#FF8C00" stroke="#FF8C00" stroke-width="3">
+          <line x1="85" y1="150" x2="85" y2="240"/><polygon points="80,232 90,232 85,250"/>
+          <line x1="515" y1="150" x2="515" y2="240"/><polygon points="510,232 520,232 515,250"/>
+        </g>
+        <text class="a-soil-weight" x="85"  y="142" fill="#FF8C00" font-size="11" font-family="Montserrat" font-weight="700" text-anchor="middle">G · SOIL WT</text>
+        <text class="a-soil-weight" x="515" y="142" fill="#FF8C00" font-size="11" font-family="Montserrat" font-weight="700" text-anchor="middle">G · SOIL WT</text>
+
+        <!-- FAILURE PLANE (drawn in stage 4) -->
+        <path class="a-failure" d="M 182,394 Q 300,310 418,394"
+          fill="none" stroke="#ef4444" stroke-width="3" stroke-dasharray="6 4"/>
+        <text class="a-failure" x="300" y="300" fill="#ef4444" font-size="12" font-family="Montserrat" font-weight="700" text-anchor="middle">FAILURE PLANE</text>
+
+        <!-- EQUATION at top (visible stage 4+) -->
+        <g class="a-equation">
+          <rect x="200" y="20" width="200" height="40" rx="8" fill="#000" stroke="#ef4444" stroke-width="2"/>
+          <text x="300" y="46" fill="#fff" font-size="20" font-family="Montserrat" font-weight="900" text-anchor="middle">
+            A &gt; G → <tspan fill="#ef4444">FAIL</tspan>
+          </text>
+        </g>
+
+        <!-- CRACKS (stage 5) -->
+        <g class="a-crack" stroke="#ef4444" stroke-width="2" fill="none">
+          <path d="M 220,394 L 215,355 L 225,330" stroke-dasharray="4 2"/>
+          <path d="M 300,360 L 305,330 L 295,310" stroke-dasharray="4 2"/>
+          <path d="M 380,394 L 385,355 L 375,330" stroke-dasharray="4 2"/>
+        </g>
+      </svg>
+
+      <!-- NARRATIVE -->
+      <div id="heaveNarrative" class="narrative-card">
+        <span class="stage-num" id="stageNum">1</span>
+        <div class="stage-title" id="stageTitle">Initial state — dry excavation</div>
+        <div class="stage-mandarin" id="stageMandarin"></div>
+        <div class="stage-desc" id="stageDesc"></div>
+      </div>
+
+      <!-- CONTROLS -->
+      <div class="anim-controls">
+        <button onclick="heaveStep(-1)" title="Previous"><i class="fa-solid fa-backward-step"></i></button>
+        <button onclick="heavePlayPause()" title="Play / Pause"><i id="heavePlayIcon" class="fa-solid fa-pause"></i></button>
+        <button onclick="heaveStep(1)" title="Next"><i class="fa-solid fa-forward-step"></i></button>
+        <button onclick="heaveRestart()" title="Restart"><i class="fa-solid fa-rotate-left"></i></button>
+        <div class="progress"><div id="heaveProgressBar"></div></div>
+        <span id="heaveStageLabel" class="stage-pill">Stage 1 / 5</span>
+      </div>
+    </div>
+  </div>
+  <!-- ─────────────────────────────────────────────────────────────────── -->
+
   <script>
     const tabs = document.querySelectorAll('.tab-btn');
     const sections = document.querySelectorAll('.section');
@@ -1503,6 +1860,88 @@
       const ro = new ResizeObserver(sizeYouTubeBackgrounds);
       document.querySelectorAll('.section').forEach(s => ro.observe(s));
     }
+
+    // ── Hydraulic-heave SVG animation modal ─────────────────────────
+    const HEAVE_STAGES = [
+      { num:1, title:'Initial state — dry excavation',
+        zh:'第一階段：挖好基坑，還沒有水',
+        en:'The pit is dug and the sheet piles are driven in. Soil sits on either side. Groundwater table is far below the base — no upward pressure yet.' },
+      { num:2, title:'Groundwater rises and seeps under the piles',
+        zh:'第二階段：地下水從板樁底下流進來',
+        en:'Groundwater (GWL) rises around the pit. Water finds a path under the bottom of the sheet piles and starts seeping upward into the excavation base.' },
+      { num:3, title:'Two forces act on the pit base',
+        zh:'第三階段：兩種力量同時作用',
+        en:'Seepage force A pushes the soil upward (blue arrows). Soil weight G pushes it downward (orange arrows). As long as G > A, the base is stable.' },
+      { num:4, title:'Force balance breaks — A exceeds G',
+        zh:'第四階段：水壓超過土的重量，平衡破壞',
+        en:'Water pressure keeps growing. When A > G, the effective stress drops to zero. A potential failure plane forms inside the pit base (red dashed arc).' },
+      { num:5, title:'Hydraulic heave — catastrophic uplift',
+        zh:'第五階段：基底隆起，結構崩壞',
+        en:'The soil mass below the pit lifts up like a piston. The base ruptures, the sheet piles tilt outward, and water and soil burst into the pit.' }
+    ];
+    let _heaveStage = 0;
+    let _heaveTimer = null;
+    let _heavePlaying = true;
+    const STAGE_MS = 4500;
+
+    function setHeaveStage(i) {
+      _heaveStage = (i + HEAVE_STAGES.length) % HEAVE_STAGES.length;
+      const svg = document.getElementById('heaveAnimSvg');
+      if (!svg) return;
+      svg.classList.remove('s1','s2','s3','s4','s5');
+      svg.classList.add('s' + (_heaveStage + 1));
+      const s = HEAVE_STAGES[_heaveStage];
+      document.getElementById('stageNum').textContent = s.num;
+      document.getElementById('stageTitle').textContent = s.title;
+      document.getElementById('stageMandarin').textContent = s.zh;
+      document.getElementById('stageDesc').textContent = s.en;
+      document.getElementById('heaveStageLabel').textContent = `Stage ${s.num} / ${HEAVE_STAGES.length}`;
+      document.getElementById('heaveProgressBar').style.width = `${((_heaveStage + 1) / HEAVE_STAGES.length) * 100}%`;
+    }
+    function heaveStep(delta) {
+      setHeaveStage(_heaveStage + delta);
+    }
+    function heavePlayPause() {
+      _heavePlaying = !_heavePlaying;
+      document.getElementById('heavePlayIcon').className =
+        _heavePlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play';
+      if (_heavePlaying) startHeaveTimer(); else stopHeaveTimer();
+    }
+    function heaveRestart() {
+      setHeaveStage(0);
+      if (!_heavePlaying) heavePlayPause();
+    }
+    function startHeaveTimer() {
+      stopHeaveTimer();
+      _heaveTimer = setInterval(() => setHeaveStage(_heaveStage + 1), STAGE_MS);
+    }
+    function stopHeaveTimer() {
+      if (_heaveTimer) { clearInterval(_heaveTimer); _heaveTimer = null; }
+    }
+    function openHeaveAnimation() {
+      document.getElementById('heaveAnimModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      setHeaveStage(0);
+      _heavePlaying = true;
+      document.getElementById('heavePlayIcon').className = 'fa-solid fa-pause';
+      startHeaveTimer();
+    }
+    function closeHeaveAnimation() {
+      document.getElementById('heaveAnimModal').classList.remove('open');
+      document.body.style.overflow = '';
+      stopHeaveTimer();
+    }
+    // Close on backdrop click + Esc
+    document.getElementById('heaveAnimModal').addEventListener('click', (e) => {
+      if (e.target.id === 'heaveAnimModal') closeHeaveAnimation();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const m = document.getElementById('heaveAnimModal');
+        if (m && m.classList.contains('open')) closeHeaveAnimation();
+      }
+    });
+    // ─────────────────────────────────────────────────────────────────
 
     // Belt-and-braces: also re-size when any .section gains the .active class
     // (covers any code path that activates a section without going through
