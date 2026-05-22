@@ -437,7 +437,7 @@
       transform: translateY(-2px);
       box-shadow: 0 14px 30px -8px rgba(255,140,0,.55);
     }
-    #heaveAnimModal {
+    #heaveAnimModal, #stageAnimModal {
       position: fixed; inset: 0; z-index: 10000;
       display: none;
       align-items: center; justify-content: center;
@@ -446,12 +446,12 @@
       -webkit-backdrop-filter: blur(8px);
       padding: 1rem;
     }
-    #heaveAnimModal.open {
+    #heaveAnimModal.open, #stageAnimModal.open {
       display: flex;
       animation: fadeIn .3s ease;
     }
     @keyframes fadeIn { from {opacity:0} to {opacity:1} }
-    #heaveAnimModal .panel {
+    #heaveAnimModal .panel, #stageAnimModal .panel {
       background: #0f172a;
       border: 1.5px solid #FF8C00;
       border-radius: 18px;
@@ -462,12 +462,21 @@
       flex-direction: column;
       overflow: hidden;
     }
-    #heaveAnimModal .panel-head {
+    #stageAnimModal .panel { max-width: 720px; }
+    #heaveAnimModal .panel-head, #stageAnimModal .panel-head {
       padding: .9rem 1.25rem;
       border-bottom: 1px solid rgba(255,140,0,.25);
       display: flex; align-items: center; justify-content: space-between;
       background: linear-gradient(180deg, rgba(255,140,0,.08), transparent);
       flex-shrink: 0;
+    }
+    /* Stage animation card button (orange CTA under each stage card) */
+    .stage-anim-btn {
+      transition: all .2s;
+    }
+    .stage-anim-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px -6px rgba(255,140,0,.55);
     }
     #heaveAnimModal .close-btn {
       width: 36px; height: 36px;
@@ -1142,6 +1151,10 @@
               <div class="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">English</div>
               <p class="text-sm text-slate-600 leading-snug">Water begins seeping in from beneath the wall. The soil is still intact, but problems have already begun.</p>
             </div>
+            <button onclick="openStageAnim(1)"
+              class="stage-anim-btn mt-4 w-full bg-[#FF8C00] hover:bg-orange-500 text-black font-display font-bold uppercase text-xs tracking-widest py-2.5 px-3 rounded-md flex items-center justify-center gap-2">
+              <i class="fa-solid fa-circle-play"></i> Watch Animation
+            </button>
           </div>
         </div>
 
@@ -1182,6 +1195,10 @@
               <div class="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">English</div>
               <p class="text-sm text-slate-600 leading-snug">The water flow gets stronger and carries soil away. Small seepage tunnels gradually form inside the soil.</p>
             </div>
+            <button onclick="openStageAnim(2)"
+              class="stage-anim-btn mt-4 w-full bg-[#FF8C00] hover:bg-orange-500 text-black font-display font-bold uppercase text-xs tracking-widest py-2.5 px-3 rounded-md flex items-center justify-center gap-2">
+              <i class="fa-solid fa-circle-play"></i> Watch Animation
+            </button>
           </div>
         </div>
 
@@ -1221,6 +1238,10 @@
               <div class="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">English</div>
               <p class="text-sm text-slate-600 leading-snug">A large flow channel forms inside the soil. Water keeps flowing upward, and more and more soil is washed away.</p>
             </div>
+            <button onclick="openStageAnim(3)"
+              class="stage-anim-btn mt-4 w-full bg-[#FF8C00] hover:bg-orange-500 text-black font-display font-bold uppercase text-xs tracking-widest py-2.5 px-3 rounded-md flex items-center justify-center gap-2">
+              <i class="fa-solid fa-circle-play"></i> Watch Animation
+            </button>
           </div>
         </div>
 
@@ -1264,6 +1285,10 @@
               <div class="text-[10px] uppercase tracking-widest text-red-400 font-bold mb-1">English</div>
               <p class="text-sm text-slate-600 leading-snug">The soil turns into mud and can no longer support anything. The wall falls, and the entire structure completely fails.</p>
             </div>
+            <button onclick="openStageAnim(4)"
+              class="stage-anim-btn mt-4 w-full bg-red-600 hover:bg-red-700 text-white font-display font-bold uppercase text-xs tracking-widest py-2.5 px-3 rounded-md flex items-center justify-center gap-2">
+              <i class="fa-solid fa-circle-play"></i> Watch Animation
+            </button>
           </div>
         </div>
 
@@ -1869,6 +1894,26 @@
   </div>
   <!-- ─────────────────────────────────────────────────────────────────── -->
 
+  <!-- ────────────── PER-STAGE ANIMATION MODAL (Topic 1 cards) ────────────── -->
+  <div id="stageAnimModal" role="dialog" aria-modal="true" aria-labelledby="stageAnimTitle">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div id="stageAnimTitle" class="font-display font-black text-white text-lg md:text-xl uppercase">Stage</div>
+          <div id="stageAnimSub" class="text-[#FF8C00] text-sm mt-1">Subtitle</div>
+        </div>
+        <button class="close-btn" onclick="closeStageAnim()" aria-label="Close">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <div class="svg-stage">
+        <div id="stageAnimContent" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"></div>
+      </div>
+      <div class="narrative-card" id="stageAnimDesc"></div>
+    </div>
+  </div>
+  <!-- ───────────────────────────────────────────────────────────────────── -->
+
   <script>
     const tabs = document.querySelectorAll('.tab-btn');
     const sections = document.querySelectorAll('.section');
@@ -1974,6 +2019,209 @@
       const ro = new ResizeObserver(sizeYouTubeBackgrounds);
       document.querySelectorAll('.section').forEach(s => ro.observe(s));
     }
+
+    // ── Per-stage SVG animations (Topic 1: 4 stages) ────────────────
+    const STAGE_ANIMS = {
+      1: {
+        title: 'Stage 1 · Initial Disturbance',
+        zh: '初始破壞 / 開始階段',
+        desc: '<b class="text-white">Water begins seeping in from beneath the wall.</b> The soil structure is still intact, but the very first drops of seepage are working their way under the sheet pile — the disturbance has begun.<br><br><span class="text-[#FF8C00]">水從牆的下面慢慢流進來。土還沒壞，可是問題已經開始了。</span>',
+        svg: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+          <rect width="400" height="220" fill="#D6EAF8"/>
+          <rect x="0" y="100" width="113" height="120" fill="#9E8052"/>
+          <rect x="287" y="100" width="113" height="120" fill="#9E8052"/>
+          <rect x="113" y="12" width="174" height="148" fill="#EBF5FF" opacity="0.9"/>
+          <rect x="113" y="160" width="174" height="60" fill="#B39060"/>
+          <rect x="287" y="40" width="113" height="60" fill="#60A5FA" opacity="0.45"/>
+          <line x1="287" y1="40" x2="400" y2="40" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="5 3"/>
+          <text x="343" y="32" fill="#1D4ED8" font-size="11" text-anchor="middle" font-weight="bold">GWL</text>
+          <rect x="105" y="4" width="14" height="216" fill="#334155" rx="2"/>
+          <rect x="105" y="4" width="5"  height="216" fill="#475569" rx="2"/>
+          <rect x="281" y="4" width="14" height="216" fill="#334155" rx="2"/>
+          <rect x="281" y="4" width="5"  height="216" fill="#475569" rx="2"/>
+          <path d="M 287 175 Q 200 188 113 175" stroke="#3B82F6" stroke-width="2.5" fill="none" stroke-dasharray="120" stroke-dashoffset="120">
+            <animate attributeName="stroke-dashoffset" values="120;0" dur="3.5s" repeatCount="indefinite"/>
+          </path>
+          <circle r="3.5" fill="#60A5FA">
+            <animateMotion dur="3.5s" repeatCount="indefinite" path="M 287 175 Q 200 188 113 175"/>
+            <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.15;.85;1" dur="3.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle r="3" fill="#60A5FA">
+            <animateMotion dur="3.5s" begin="1.5s" repeatCount="indefinite" path="M 287 175 Q 200 188 113 175"/>
+            <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.15;.85;1" dur="3.5s" begin="1.5s" repeatCount="indefinite"/>
+          </circle>
+          <text x="200" y="60" font-size="14" text-anchor="middle" fill="#1e293b" font-weight="bold" letter-spacing="2">EXCAVATION PIT</text>
+          <text x="200" y="200" font-size="11" text-anchor="middle" fill="#7c2d12" font-weight="bold">⚠ INITIAL SEEPAGE BEGINS</text>
+        </svg>`
+      },
+      2: {
+        title: 'Stage 2 · Backward Erosion',
+        zh: '逆向侵蝕 / 逐漸破壞',
+        desc: '<b class="text-white">Water flow gets stronger and starts carrying soil away.</b> Tiny soil particles are washed backward under the sheet pile, slowly forming small seepage tunnels beneath the foundation.<br><br><span class="text-[#FF8C00]">水流變大了，開始把土帶走。土裡面慢慢出現小通道。</span>',
+        svg: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+          <rect width="400" height="220" fill="#D6EAF8"/>
+          <rect x="0" y="100" width="113" height="120" fill="#9E8052"/>
+          <rect x="287" y="100" width="113" height="120" fill="#9E8052"/>
+          <rect x="113" y="12" width="174" height="148" fill="#EBF5FF" opacity="0.9"/>
+          <rect x="113" y="160" width="174" height="60" fill="#B39060"/>
+          <rect x="287" y="40" width="113" height="60" fill="#60A5FA" opacity="0.45"/>
+          <line x1="287" y1="40" x2="400" y2="40" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="5 3"/>
+          <text x="343" y="32" fill="#1D4ED8" font-size="11" text-anchor="middle" font-weight="bold">GWL</text>
+          <rect x="105" y="4" width="14" height="216" fill="#334155" rx="2"/>
+          <rect x="105" y="4" width="5"  height="216" fill="#475569" rx="2"/>
+          <rect x="281" y="4" width="14" height="216" fill="#334155" rx="2"/>
+          <rect x="281" y="4" width="5"  height="216" fill="#475569" rx="2"/>
+          <ellipse cx="200" cy="178" rx="70" ry="6" fill="#3B82F6" opacity="0.55"/>
+          <ellipse cx="200" cy="178" rx="60" ry="4" fill="#60A5FA" opacity="0.7"/>
+          <path d="M 270 175 L 130 175" stroke="#1D4ED8" stroke-width="2" fill="none" stroke-dasharray="6 3">
+            <animate attributeName="stroke-dashoffset" values="0;-18" dur="0.8s" repeatCount="indefinite"/>
+          </path>
+          <polygon points="130,170 130,180 120,175" fill="#1D4ED8"/>
+          <circle r="2.5" fill="#9E8052">
+            <animateMotion dur="2.5s" repeatCount="indefinite" path="M 260 175 L 130 175"/>
+            <animate attributeName="opacity" values="1;1;0.5;0" keyTimes="0;.6;.85;1" dur="2.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle r="2" fill="#7A6244">
+            <animateMotion dur="2.5s" begin=".5s" repeatCount="indefinite" path="M 250 178 L 125 178"/>
+            <animate attributeName="opacity" values="1;1;0.5;0" keyTimes="0;.6;.85;1" dur="2.5s" begin=".5s" repeatCount="indefinite"/>
+          </circle>
+          <circle r="2.2" fill="#9E8052">
+            <animateMotion dur="2.5s" begin="1s" repeatCount="indefinite" path="M 265 172 L 135 172"/>
+            <animate attributeName="opacity" values="1;1;0.5;0" keyTimes="0;.6;.85;1" dur="2.5s" begin="1s" repeatCount="indefinite"/>
+          </circle>
+          <circle r="2" fill="#7A6244">
+            <animateMotion dur="2.5s" begin="1.5s" repeatCount="indefinite" path="M 255 180 L 122 180"/>
+            <animate attributeName="opacity" values="1;1;0.5;0" keyTimes="0;.6;.85;1" dur="2.5s" begin="1.5s" repeatCount="indefinite"/>
+          </circle>
+          <text x="200" y="60" font-size="14" text-anchor="middle" fill="#1e293b" font-weight="bold" letter-spacing="2">EROSION BEGINS</text>
+          <text x="200" y="205" font-size="11" text-anchor="middle" fill="#7c2d12" font-weight="bold">← SOIL ERODES BACKWARD ←</text>
+        </svg>`
+      },
+      3: {
+        title: 'Stage 3 · Flow Channel Formation',
+        zh: '流動通道形成 / 通道擴大',
+        desc: '<b class="text-white">A large flow channel forms inside the soil.</b> Water now flows continuously upward through the open channel, washing away more and more soil at an accelerating rate.<br><br><span class="text-[#FF8C00]">土裡面形成一條大通道。水一直往上流，越來越多的土被帶走。</span>',
+        svg: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+          <rect width="400" height="220" fill="#C8DFF5"/>
+          <rect x="0" y="100" width="113" height="120" fill="#9E8052"/>
+          <rect x="287" y="100" width="113" height="120" fill="#9E8052"/>
+          <rect x="113" y="12" width="174" height="148" fill="#EBF5FF" opacity="0.85"/>
+          <rect x="113" y="160" width="174" height="60" fill="#B39060"/>
+          <rect x="287" y="34" width="113" height="66" fill="#60A5FA" opacity="0.5"/>
+          <line x1="287" y1="34" x2="400" y2="34" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="5 3"/>
+          <text x="343" y="26" fill="#1D4ED8" font-size="11" text-anchor="middle" font-weight="bold">GWL ↑</text>
+          <rect x="105" y="4" width="14" height="216" fill="#334155" rx="2"/>
+          <rect x="105" y="4" width="5"  height="216" fill="#475569" rx="2"/>
+          <rect x="281" y="4" width="14" height="216" fill="#334155" rx="2"/>
+          <rect x="281" y="4" width="5"  height="216" fill="#475569" rx="2"/>
+          <rect x="180" y="160" width="40" height="60" fill="#2563EB" opacity="0.55" rx="3">
+            <animate attributeName="width" values="36;44;36" dur="2s" repeatCount="indefinite"/>
+            <animate attributeName="x" values="182;178;182" dur="2s" repeatCount="indefinite"/>
+          </rect>
+          <g stroke="#1D4ED8" stroke-width="2.5" fill="#1D4ED8">
+            <line x1="200" y1="218" x2="200" y2="170"/>
+            <polygon points="194,180 206,180 200,165"/>
+          </g>
+          <circle r="3" fill="#60A5FA">
+            <animate attributeName="cy" values="218;160;60" dur="1.5s" repeatCount="indefinite"/>
+            <animate attributeName="cx" values="200;200;200" dur="1.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;1;0" keyTimes="0;.3;1" dur="1.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle r="2.5" fill="#60A5FA">
+            <animate attributeName="cy" values="218;160;60" dur="1.8s" begin=".4s" repeatCount="indefinite"/>
+            <animate attributeName="cx" values="193;193;193" dur="1.8s" begin=".4s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;1;0" keyTimes="0;.3;1" dur="1.8s" begin=".4s" repeatCount="indefinite"/>
+          </circle>
+          <circle r="2.8" fill="#60A5FA">
+            <animate attributeName="cy" values="218;160;60" dur="1.6s" begin=".7s" repeatCount="indefinite"/>
+            <animate attributeName="cx" values="207;207;207" dur="1.6s" begin=".7s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;1;0" keyTimes="0;.3;1" dur="1.6s" begin=".7s" repeatCount="indefinite"/>
+          </circle>
+          <circle r="2.2" fill="#60A5FA">
+            <animate attributeName="cy" values="218;160;60" dur="1.7s" begin="1.1s" repeatCount="indefinite"/>
+            <animate attributeName="cx" values="200;200;200" dur="1.7s" begin="1.1s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;1;0" keyTimes="0;.3;1" dur="1.7s" begin="1.1s" repeatCount="indefinite"/>
+          </circle>
+          <text x="200" y="50" font-size="14" text-anchor="middle" fill="#1e3a8a" font-weight="bold" letter-spacing="2">FLOW CHANNEL</text>
+          <text x="200" y="205" font-size="11" text-anchor="middle" fill="#1D4ED8" font-weight="bold">↑ STRONG UPWARD FLOW ↑</text>
+        </svg>`
+      },
+      4: {
+        title: 'Stage 4 · Liquefaction &amp; Collapse',
+        zh: '液化與崩塌 / 完全破壞',
+        desc: '<b class="text-white">The soil turns into mud and loses all bearing capacity.</b> Sheet pile walls buckle outward, the base cracks open, and the entire structure suffers catastrophic collapse.<br><br><span class="text-red-400">土變成泥，不能再支撐東西。牆倒了，整個結構完全壞掉。</span>',
+        svg: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+          <rect width="400" height="220" fill="#FEE2E2"/>
+          <rect x="0" y="100" width="113" height="120" fill="#A0826D"/>
+          <rect x="287" y="100" width="113" height="120" fill="#A0826D"/>
+          <rect x="113" y="12" width="174" height="148" fill="#FFECEC" opacity="0.85"/>
+          <!-- bulged mud floor -->
+          <path d="M 113 220 L 113 165 Q 200 105 287 165 L 287 220 Z" fill="#8B6F4E"/>
+          <!-- mud surface ripple -->
+          <path d="M 120 170 Q 160 158 200 165 Q 240 172 280 162" fill="none" stroke="#5C4A32" stroke-width="1.5" opacity="0.5"/>
+          <!-- tilted sheet piles -->
+          <g transform="rotate(-12 112 215)">
+            <rect x="105" y="4" width="14" height="216" fill="#7F1D1D" rx="2"/>
+            <rect x="105" y="4" width="5"  height="216" fill="#991B1B" rx="2"/>
+          </g>
+          <g transform="rotate(12 288 215)">
+            <rect x="281" y="4" width="14" height="216" fill="#7F1D1D" rx="2"/>
+            <rect x="281" y="4" width="5"  height="216" fill="#991B1B" rx="2"/>
+          </g>
+          <!-- cracks drawing in -->
+          <g stroke="#7F1D1D" stroke-width="2.2" fill="none" stroke-dasharray="40">
+            <path d="M 150 158 L 145 130 L 155 105">
+              <animate attributeName="stroke-dashoffset" values="40;0" dur="1.5s" repeatCount="indefinite"/>
+            </path>
+            <path d="M 200 145 L 205 110 L 195 80">
+              <animate attributeName="stroke-dashoffset" values="40;0" dur="1.7s" begin=".3s" repeatCount="indefinite"/>
+            </path>
+            <path d="M 250 158 L 255 130 L 245 105">
+              <animate attributeName="stroke-dashoffset" values="40;0" dur="1.8s" begin=".6s" repeatCount="indefinite"/>
+            </path>
+          </g>
+          <!-- mud bubbles -->
+          <circle cx="155" cy="175" fill="#EF4444" opacity="0.6">
+            <animate attributeName="r" values="0;7;0" dur="1.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="200" cy="160" fill="#EF4444" opacity="0.65">
+            <animate attributeName="r" values="0;9;0" dur="2s" begin=".5s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="245" cy="175" fill="#EF4444" opacity="0.6">
+            <animate attributeName="r" values="0;7;0" dur="1.8s" begin="1s" repeatCount="indefinite"/>
+          </circle>
+          <text x="200" y="50" font-size="16" text-anchor="middle" fill="#7F1D1D" font-weight="900" letter-spacing="2">⚠ TOTAL COLLAPSE ⚠</text>
+        </svg>`
+      }
+    };
+
+    function openStageAnim(n) {
+      const d = STAGE_ANIMS[n];
+      if (!d) return;
+      document.getElementById('stageAnimTitle').textContent = d.title;
+      document.getElementById('stageAnimSub').textContent = d.zh;
+      document.getElementById('stageAnimContent').innerHTML = d.svg;
+      document.getElementById('stageAnimDesc').innerHTML = d.desc;
+      document.getElementById('stageAnimModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeStageAnim() {
+      document.getElementById('stageAnimModal').classList.remove('open');
+      document.body.style.overflow = '';
+      // Clear SVG so SMIL animations stop and reset
+      document.getElementById('stageAnimContent').innerHTML = '';
+    }
+    // Click backdrop / Esc to close
+    document.getElementById('stageAnimModal').addEventListener('click', (e) => {
+      if (e.target.id === 'stageAnimModal') closeStageAnim();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const m = document.getElementById('stageAnimModal');
+        if (m && m.classList.contains('open')) closeStageAnim();
+      }
+    });
+    // ─────────────────────────────────────────────────────────────────
 
     // ── Hydraulic-heave SVG animation modal ─────────────────────────
     const HEAVE_STAGES = [
