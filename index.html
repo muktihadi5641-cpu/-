@@ -1862,7 +1862,6 @@
         <button onclick="heavePlayPause()" title="Play / Pause"><i id="heavePlayIcon" class="fa-solid fa-pause"></i></button>
         <button onclick="heaveStep(1)" title="Next"><i class="fa-solid fa-forward-step"></i></button>
         <button onclick="heaveRestart()" title="Restart"><i class="fa-solid fa-rotate-left"></i></button>
-        <button onclick="toggleHeaveAudio()" title="Audio narration (Indonesian)"><i id="heaveAudioIcon" class="fa-solid fa-volume-high"></i></button>
         <div class="progress"><div id="heaveProgressBar"></div></div>
         <span id="heaveStageLabel" class="stage-pill">Stage 1 / 5</span>
       </div>
@@ -1980,31 +1979,24 @@
     const HEAVE_STAGES = [
       { num:1, title:'Initial state — dry excavation',
         zh:'第一階段：挖好基坑，還沒有水',
-        en:'The pit is dug and the sheet piles are driven in. Soil sits on either side. Groundwater table is far below the base — no upward pressure yet.',
-        id:'Tahap pertama. Galian sudah selesai dan tiang pancang sudah dipasang. Air tanah masih jauh di bawah, sehingga belum ada tekanan ke atas.' },
+        en:'The pit is dug and the sheet piles are driven in. Soil sits on either side. Groundwater table is far below the base — no upward pressure yet.' },
       { num:2, title:'Groundwater seeps from outside, under the piles, into the pit',
         zh:'第二階段：地下水從板樁外側往下滲，再從底下流進基坑',
-        en:'Groundwater rises around the pit. Water finds a path from the outside soil, flows downward along the pile, curves under the pile tip, and rises into the excavation base.',
-        id:'Tahap kedua. Air tanah di sekitar galian mulai naik. Air mengalir dari sisi luar tiang pancang, turun ke bawah, melewati ujung tiang, lalu naik kembali ke dalam dasar galian.' },
+        en:'Groundwater rises around the pit. Water finds a path from the outside soil, flows downward along the pile, curves under the pile tip, and rises into the excavation base.' },
       { num:3, title:'Two forces act on the pit base',
         zh:'第三階段：兩種力量同時作用',
-        en:'Seepage force A pushes the soil upward (blue arrows). Soil weight G pushes it downward (orange arrows). As long as G > A, the base is stable.',
-        id:'Tahap ketiga. Dua gaya bekerja pada dasar galian. Gaya rembesan A mendorong tanah ke atas, sedangkan berat tanah G menekan ke bawah. Selama G lebih besar dari A, dasar galian masih stabil.' },
+        en:'Seepage force A pushes the soil upward (blue arrows). Soil weight G pushes it downward (orange arrows). As long as G > A, the base is stable.' },
       { num:4, title:'Force balance breaks — A exceeds G',
         zh:'第四階段：水壓超過土的重量，平衡破壞',
-        en:'Water pressure keeps growing. When A > G, the effective stress drops to zero. A potential failure plane forms inside the pit base (red dashed arc).',
-        id:'Tahap keempat. Tekanan air terus bertambah. Ketika gaya rembesan A melebihi berat tanah G, tegangan efektif menjadi nol. Bidang keruntuhan mulai terbentuk di dasar galian.' },
+        en:'Water pressure keeps growing. When A > G, the effective stress drops to zero. A potential failure plane forms inside the pit base (red dashed arc).' },
       { num:5, title:'Hydraulic heave — catastrophic uplift',
         zh:'第五階段：基底隆起，結構崩壞',
-        en:'The soil mass below the pit lifts up like a piston. The base ruptures, the sheet piles tilt outward, and water and soil burst into the pit.',
-        id:'Tahap kelima. Hydraulic heave terjadi. Massa tanah di bawah galian terangkat seperti piston. Dasar galian pecah, tiang pancang miring keluar, dan air serta tanah menyembur masuk ke dalam galian.' }
+        en:'The soil mass below the pit lifts up like a piston. The base ruptures, the sheet piles tilt outward, and water and soil burst into the pit.' }
     ];
     let _heaveStage = 0;
     let _heaveTimer = null;
     let _heavePlaying = true;
-    let _heaveAudioOn = true;           // audio narration ON by default
-    let _heaveSpeakingNow = false;      // true while TTS is mid-sentence
-    const STAGE_MS = 4500;              // used only when audio is off
+    const STAGE_MS = 5500;
 
     function setHeaveStage(i) {
       _heaveStage = (i + HEAVE_STAGES.length) % HEAVE_STAGES.length;
@@ -2019,118 +2011,43 @@
       document.getElementById('stageDesc').textContent = s.en;
       document.getElementById('heaveStageLabel').textContent = `Stage ${s.num} / ${HEAVE_STAGES.length}`;
       document.getElementById('heaveProgressBar').style.width = `${((_heaveStage + 1) / HEAVE_STAGES.length) * 100}%`;
-      // Speak Indonesian narration (if enabled)
-      speakHeaveStage(s.id);
     }
     function heaveStep(delta) {
-      // Manual step: cancel current speech first
-      stopHeaveSpeech();
       setHeaveStage(_heaveStage + delta);
-      // If playing & audio off, restart timer; if audio on, onend handles it.
-      if (_heavePlaying && !_heaveAudioOn) startHeaveTimer();
+      if (_heavePlaying) startHeaveTimer();
     }
     function heavePlayPause() {
       _heavePlaying = !_heavePlaying;
       document.getElementById('heavePlayIcon').className =
         _heavePlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play';
-      if (_heavePlaying) {
-        // Resume: if audio on, re-speak current stage so onend re-arms the chain
-        if (_heaveAudioOn) speakHeaveStage(HEAVE_STAGES[_heaveStage].id);
-        else startHeaveTimer();
-      } else {
-        stopHeaveTimer();
-        stopHeaveSpeech();
-      }
+      if (_heavePlaying) startHeaveTimer(); else stopHeaveTimer();
     }
     function heaveRestart() {
-      stopHeaveSpeech();
       stopHeaveTimer();
       _heavePlaying = true;
       document.getElementById('heavePlayIcon').className = 'fa-solid fa-pause';
       setHeaveStage(0);
+      startHeaveTimer();
     }
     function startHeaveTimer() {
       stopHeaveTimer();
-      _heaveTimer = setTimeout(() => {
-        if (_heavePlaying) {
-          setHeaveStage(_heaveStage + 1);
-          if (!_heaveAudioOn) startHeaveTimer();
-        }
-      }, STAGE_MS);
+      _heaveTimer = setInterval(() => setHeaveStage(_heaveStage + 1), STAGE_MS);
     }
     function stopHeaveTimer() {
-      if (_heaveTimer) { clearTimeout(_heaveTimer); _heaveTimer = null; }
+      if (_heaveTimer) { clearInterval(_heaveTimer); _heaveTimer = null; }
     }
-
-    // ── Audio narration (Web Speech API, Indonesian) ──
-    function speakHeaveStage(text) {
-      stopHeaveSpeech();
-      if (!_heaveAudioOn) {
-        // Audio off — fall back to fixed-interval timer
-        if (_heavePlaying) startHeaveTimer();
-        return;
-      }
-      if (!('speechSynthesis' in window) || !text) {
-        if (_heavePlaying) startHeaveTimer();
-        return;
-      }
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang  = 'id-ID';
-      u.rate  = 0.95;
-      u.pitch = 1;
-      // Try to pick an Indonesian voice if the browser has one
-      const voices = window.speechSynthesis.getVoices();
-      const idVoice = voices.find(v => /^id(-|_|$)/i.test(v.lang));
-      if (idVoice) u.voice = idVoice;
-      _heaveSpeakingNow = true;
-      u.onend = () => {
-        _heaveSpeakingNow = false;
-        if (_heavePlaying && _heaveAudioOn) {
-          // After 1s pause, advance to next stage
-          _heaveTimer = setTimeout(() => setHeaveStage(_heaveStage + 1), 1000);
-        }
-      };
-      u.onerror = u.onend;
-      try { window.speechSynthesis.speak(u); }
-      catch (e) { u.onend(); }
-    }
-    function stopHeaveSpeech() {
-      if ('speechSynthesis' in window) {
-        try { window.speechSynthesis.cancel(); } catch (e) {}
-      }
-      _heaveSpeakingNow = false;
-    }
-    function toggleHeaveAudio() {
-      _heaveAudioOn = !_heaveAudioOn;
-      document.getElementById('heaveAudioIcon').className =
-        _heaveAudioOn ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
-      stopHeaveSpeech();
-      stopHeaveTimer();
-      if (_heavePlaying) {
-        if (_heaveAudioOn) speakHeaveStage(HEAVE_STAGES[_heaveStage].id);
-        else startHeaveTimer();
-      }
-    }
-    // Pre-load voices (some browsers need this triggered)
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.getVoices();
-      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-    }
-
     function openHeaveAnimation() {
       document.getElementById('heaveAnimModal').classList.add('open');
       document.body.style.overflow = 'hidden';
       _heavePlaying = true;
       document.getElementById('heavePlayIcon').className = 'fa-solid fa-pause';
-      document.getElementById('heaveAudioIcon').className =
-        _heaveAudioOn ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
-      setHeaveStage(0);   // this triggers speech which schedules the next stage
+      setHeaveStage(0);
+      startHeaveTimer();
     }
     function closeHeaveAnimation() {
       document.getElementById('heaveAnimModal').classList.remove('open');
       document.body.style.overflow = '';
       stopHeaveTimer();
-      stopHeaveSpeech();
     }
     // Close on backdrop click + Esc
     document.getElementById('heaveAnimModal').addEventListener('click', (e) => {
