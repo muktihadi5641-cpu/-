@@ -57,6 +57,8 @@
       transition: color .2s ease;
     }
     .zh-word:hover { color: var(--orange) }
+    /* On orange bg the text would vanish — use near-black instead */
+    .bg-\[#C97A1A\] .zh-word:hover { color: rgba(0,0,0,.82); }
     .zh-word::after {
       content: attr(data-tip);
       position: absolute;
@@ -97,6 +99,58 @@
     }
     .zh-word:hover::before { opacity: 1 }
     .zh-tip-pinyin { color: var(--orange); font-weight: 700; margin-right: 6px }
+
+    /* Floating Mandarin tooltip — used inside modals where overflow:hidden
+       would clip a normal absolute-positioned tooltip. Positioned via JS. */
+    .zh-pop {
+      display: inline-block;
+      cursor: help;
+      border-bottom: 1px dashed rgba(255, 140, 0, .45);
+      padding-bottom: 1px;
+      transition: color .2s ease, border-color .2s ease;
+    }
+    .zh-pop:hover,
+    .zh-pop:focus-visible {
+      color: #fff;
+      border-bottom-color: var(--orange);
+      outline: none;
+    }
+    #floatingTip {
+      position: fixed;
+      z-index: 100000;
+      background: #1A1A1A;
+      color: #fff;
+      padding: 8px 14px;
+      border: 1.5px solid var(--orange);
+      border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, .55);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -100%) translateY(-4px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    #floatingTip.show {
+      opacity: 1;
+      transform: translate(-50%, -100%) translateY(-10px);
+    }
+    #floatingTip::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: var(--orange);
+    }
+    #floatingTip .tip-pinyin {
+      color: var(--orange);
+      font-weight: 700;
+      margin-right: 6px;
+    }
 
     .tab-btn {
       position: relative;
@@ -1330,7 +1384,7 @@
       </div>
 
       <!-- OVERVIEW CALLOUT (ORANGE) -->
-      <div class="bg-[#FF8C00] text-white p-8 md:p-10 rounded-2xl shadow-xl mb-14 relative overflow-hidden">
+      <div class="bg-[#C97A1A] text-white p-8 md:p-10 rounded-2xl shadow-xl mb-14 relative overflow-hidden">
         <div
           class="absolute top-0 right-0 text-[120px] font-display font-black text-white/10 leading-none select-none pointer-events-none">
           02</div>
@@ -1908,6 +1962,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Floating tooltip for Mandarin pop-ups inside modals (escapes overflow:hidden) -->
+  <div id="floatingTip" role="tooltip" aria-hidden="true"></div>
   <!-- ─────────────────────────────────────────────────────────────────── -->
 
   <!-- ────────────── PER-STAGE ANIMATION MODAL (Topic 1 cards) ────────────── -->
@@ -2041,7 +2098,23 @@
       1: {
         title: 'Stage 1 · Initial Disturbance',
         zh: '初始破壞 / 開始階段',
-        desc: '<b class="text-white">Water begins seeping in from beneath the wall.</b> The soil structure is still intact, but the very first drops of seepage are working their way under the sheet pile — the disturbance has begun.<br><br><span class="text-[#FF8C00]">水從牆的下面慢慢流進來。土還沒壞，可是問題已經開始了。</span>',
+        desc: '<b class="text-white">Water begins seeping in from beneath the wall.</b> The soil structure is still intact, but the very first drops of seepage are working their way under the sheet pile — the disturbance has begun.',
+        zhCls: 'text-[#FF8C00]',
+        zhTokens: [
+          {w:'水', p:'shuǐ', m:'Water'},
+          {w:'從', p:'cóng', m:'From'},
+          {w:'牆的下面', p:'qiáng de xià miàn', m:'Beneath the wall'},
+          {w:'慢慢', p:'màn màn', m:'Slowly / gradually'},
+          {w:'流進來', p:'liú jìn lái', m:'Flow in / seep inside'},
+          '。',
+          {w:'土', p:'tǔ', m:'Soil'},
+          {w:'還沒壞', p:'hái méi huài', m:'Not yet broken'},
+          '，',
+          {w:'可是', p:'kě shì', m:'But / however'},
+          {w:'問題', p:'wèn tí', m:'Problem / issue'},
+          {w:'已經', p:'yǐ jīng', m:'Already'},
+          {w:'開始了', p:'kāi shǐ le', m:'Has begun'}
+        ],
         svg: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
           <rect width="400" height="220" fill="#D6EAF8"/>
           <rect x="0" y="100" width="113" height="120" fill="#9E8052"/>
@@ -2073,7 +2146,21 @@
       2: {
         title: 'Stage 2 · Backward Erosion',
         zh: '逆向侵蝕 / 逐漸破壞',
-        desc: '<b class="text-white">Water flow gets stronger and starts carrying soil away.</b> Tiny soil particles are washed backward under the sheet pile, slowly forming small seepage tunnels beneath the foundation.<br><br><span class="text-[#FF8C00]">水流變大了，開始把土帶走。土裡面慢慢出現小通道。</span>',
+        desc: '<b class="text-white">Water flow gets stronger and starts carrying soil away.</b> Tiny soil particles are washed backward under the sheet pile, slowly forming small seepage tunnels beneath the foundation.',
+        zhCls: 'text-[#FF8C00]',
+        zhTokens: [
+          {w:'水流', p:'shuǐ liú', m:'Water flow'},
+          {w:'變大了', p:'biàn dà le', m:'Gets bigger / increases'},
+          '，',
+          {w:'開始', p:'kāi shǐ', m:'Begins / starts'},
+          {w:'把土', p:'bǎ tǔ', m:'The soil (carries away)'},
+          {w:'帶走', p:'dài zǒu', m:'Carry away / wash away'},
+          '。',
+          {w:'土裡面', p:'tǔ lǐ miàn', m:'Inside the soil'},
+          {w:'慢慢', p:'màn màn', m:'Slowly / gradually'},
+          {w:'出現', p:'chū xiàn', m:'Appear / form'},
+          {w:'小通道', p:'xiǎo tōng dào', m:'Small channels / tunnels'}
+        ],
         svg: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
           <rect width="400" height="220" fill="#D6EAF8"/>
           <rect x="0" y="100" width="113" height="120" fill="#9E8052"/>
@@ -2116,7 +2203,22 @@
       3: {
         title: 'Stage 3 · Flow Channel Formation',
         zh: '流動通道形成 / 通道擴大',
-        desc: '<b class="text-white">A large flow channel forms inside the soil.</b> Water now flows continuously upward through the open channel, washing away more and more soil at an accelerating rate.<br><br><span class="text-[#FF8C00]">土裡面形成一條大通道。水一直往上流，越來越多的土被帶走。</span>',
+        desc: '<b class="text-white">A large flow channel forms inside the soil.</b> Water now flows continuously upward through the open channel, washing away more and more soil at an accelerating rate.',
+        zhCls: 'text-[#FF8C00]',
+        zhTokens: [
+          {w:'土裡面', p:'tǔ lǐ miàn', m:'Inside the soil'},
+          {w:'形成', p:'xíng chéng', m:'Forms / develops'},
+          {w:'一條', p:'yī tiáo', m:'One (long object)'},
+          {w:'大通道', p:'dà tōng dào', m:'Large channel'},
+          '。',
+          {w:'水', p:'shuǐ', m:'Water'},
+          {w:'一直', p:'yī zhí', m:'Continuously'},
+          {w:'往上流', p:'wǎng shàng liú', m:'Flows upward'},
+          '，',
+          {w:'越來越多的', p:'yuè lái yuè duō de', m:'More and more (of the)'},
+          {w:'土', p:'tǔ', m:'Soil'},
+          {w:'被帶走', p:'bèi dài zǒu', m:'Being carried away'}
+        ],
         svg: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
           <rect width="400" height="220" fill="#C8DFF5"/>
           <rect x="0" y="100" width="113" height="120" fill="#9E8052"/>
@@ -2165,7 +2267,24 @@
       4: {
         title: 'Stage 4 · Liquefaction &amp; Collapse',
         zh: '液化與崩塌 / 完全破壞',
-        desc: '<b class="text-white">The soil turns into mud and loses all bearing capacity.</b> Sheet pile walls buckle outward, the base cracks open, and the entire structure suffers catastrophic collapse.<br><br><span class="text-red-400">土變成泥，不能再支撐東西。牆倒了，整個結構完全壞掉。</span>',
+        desc: '<b class="text-white">The soil turns into mud and loses all bearing capacity.</b> Sheet pile walls buckle outward, the base cracks open, and the entire structure suffers catastrophic collapse.',
+        zhCls: 'text-red-400',
+        zhTokens: [
+          {w:'土', p:'tǔ', m:'Soil'},
+          {w:'變成泥', p:'biàn chéng ní', m:'Turns into mud'},
+          '，',
+          {w:'不能再', p:'bù néng zài', m:'Can no longer'},
+          {w:'支撐', p:'zhī chēng', m:'Support / hold up'},
+          {w:'東西', p:'dōng xi', m:'Things / structures'},
+          '。',
+          {w:'牆', p:'qiáng', m:'Wall'},
+          {w:'倒了', p:'dǎo le', m:'Collapsed / fell'},
+          '，',
+          {w:'整個', p:'zhěng gè', m:'The entire'},
+          {w:'結構', p:'jié gòu', m:'Structure'},
+          {w:'完全', p:'wán quán', m:'Completely'},
+          {w:'壞掉', p:'huài diào', m:'Broken / failed'}
+        ],
         svg: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
           <rect width="400" height="220" fill="#FEE2E2"/>
           <rect x="0" y="100" width="113" height="120" fill="#A0826D"/>
@@ -2216,7 +2335,19 @@
       1: {
         title: 'Scenario 1 · Concrete Floor (SAFE)',
         zh: '情況一：混凝土地板 — G > A',
-        desc: '<b class="text-white">Groundwater pushes upward (A)</b>, but the heavy concrete floor and overlying soil push downward (<b class="text-[#FF8C00]">G</b>). Because <b class="text-green-400">G &gt; A</b>, the water cannot lift the structure — particles bounce off the concrete and disperse sideways.<br><br><span class="text-[#FF8C00]">混凝土地板很重，把水的力量壓下去，所以結構很安全。</span>',
+        desc: '<b class="text-white">Groundwater pushes upward (A)</b>, but the heavy concrete floor and overlying soil push downward (<b class="text-[#FF8C00]">G</b>). Because <b class="text-green-400">G &gt; A</b>, the water cannot lift the structure — particles bounce off the concrete and disperse sideways.',
+        zhCls: 'text-[#FF8C00]',
+        zhTokens: [
+          {w:'混凝土地板', p:'hùn níng tǔ dì bǎn', m:'Concrete floor slab'},
+          {w:'很重', p:'hěn zhòng', m:'Very heavy'},
+          '，',
+          {w:'把水的力量', p:'bǎ shuǐ de lì liàng', m:'The water force'},
+          {w:'壓下去', p:'yā xià qù', m:'Press down / suppress'},
+          '，',
+          {w:'所以', p:'suǒ yǐ', m:'Therefore / so'},
+          {w:'結構', p:'jié gòu', m:'Structure'},
+          {w:'很安全', p:'hěn ān quán', m:'Very safe'}
+        ],
         svg: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
           <rect width="400" height="220" fill="#0f172a"/>
           <rect x="0" y="60" width="400" height="160" fill="#334155" opacity=".5"/>
@@ -2256,7 +2387,19 @@
       2: {
         title: 'Scenario 2 · Sealing Layer (RESISTED)',
         zh: '情況二：防水封底層 — 阻斷水壓',
-        desc: '<b class="text-white">A waterproof sealing layer is installed at the base of the pit.</b> Water pressure still pushes upward, but the sealing layer <b class="text-[#FF8C00]">blocks penetration</b> — water particles hit the seal and disperse sideways instead of breaking through.<br><br><span class="text-[#FF8C00]">底下有一層防水的東西，把水擋住，所以水進不去。</span>',
+        desc: '<b class="text-white">A waterproof sealing layer is installed at the base of the pit.</b> Water pressure still pushes upward, but the sealing layer <b class="text-[#FF8C00]">blocks penetration</b> — water particles hit the seal and disperse sideways instead of breaking through.',
+        zhCls: 'text-[#FF8C00]',
+        zhTokens: [
+          {w:'底下', p:'dǐ xià', m:'Underneath / below'},
+          {w:'有一層', p:'yǒu yī céng', m:'Has a layer of'},
+          {w:'防水的東西', p:'fáng shuǐ de dōng xi', m:'Waterproof material'},
+          '，',
+          {w:'把水', p:'bǎ shuǐ', m:'The water'},
+          {w:'擋住', p:'dǎng zhù', m:'Block / stop'},
+          '，',
+          {w:'所以', p:'suǒ yǐ', m:'Therefore / so'},
+          {w:'水進不去', p:'shuǐ jìn bù qù', m:'Water cannot get in'}
+        ],
         svg: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
           <rect width="400" height="220" fill="#0f172a"/>
           <rect x="20" y="20" width="360" height="80" fill="#334155" opacity=".7"/>
@@ -2291,7 +2434,19 @@
       3: {
         title: 'Scenario 3 · Low-Permeable Layer (LOW RISK)',
         zh: '情況三：嵌入低滲透土層 — 流速降低',
-        desc: '<b class="text-white">The pit is embedded in a low-permeability soil layer.</b> Water can still pass through, but very slowly — particles trickle upward at a much reduced rate. The <b class="text-sky-400">flow velocity drops</b>, and so does the uplift force.<br><br><span class="text-[#FF8C00]">低滲透層讓水流變得很慢，浮力也跟著變小。</span>',
+        desc: '<b class="text-white">The pit is embedded in a low-permeability soil layer.</b> Water can still pass through, but very slowly — particles trickle upward at a much reduced rate. The <b class="text-sky-400">flow velocity drops</b>, and so does the uplift force.',
+        zhCls: 'text-[#FF8C00]',
+        zhTokens: [
+          {w:'低滲透層', p:'dī shèn tòu céng', m:'Low-permeability layer'},
+          {w:'讓', p:'ràng', m:'Makes / causes'},
+          {w:'水流', p:'shuǐ liú', m:'Water flow'},
+          {w:'變得很慢', p:'biàn de hěn màn', m:'Becomes very slow'},
+          '，',
+          {w:'浮力', p:'fú lì', m:'Buoyancy / uplift force'},
+          {w:'也', p:'yě', m:'Also / too'},
+          {w:'跟著', p:'gēn zhe', m:'Follows / accordingly'},
+          {w:'變小', p:'biàn xiǎo', m:'Gets smaller / decreases'}
+        ],
         svg: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
           <rect width="400" height="220" fill="#0f172a"/>
           <rect x="20" y="20" width="360" height="60" fill="#334155" opacity=".6"/>
@@ -2329,7 +2484,20 @@
       4: {
         title: 'Scenario 4 · Impermeable Layer Below (HIGH RISK ⚠)',
         zh: '情況四：底部不透水層 — 壓力集中',
-        desc: '<b class="text-white">Below the pit there is an impermeable layer that water cannot pass through.</b> The water is <b class="text-red-400">trapped</b>, so pressure keeps building up against the layer. Red glowing bubbles + pulsing pressure arrows show concentration; if the design is inadequate, this is where <b class="text-red-400">bottom heave failure</b> happens.<br><br><span class="text-red-400">水沒地方走，水壓集中在底部，非常危險！</span>',
+        desc: '<b class="text-white">Below the pit there is an impermeable layer that water cannot pass through.</b> The water is <b class="text-red-400">trapped</b>, so pressure keeps building up against the layer. Red glowing bubbles + pulsing pressure arrows show concentration; if the design is inadequate, this is where <b class="text-red-400">bottom heave failure</b> happens.',
+        zhCls: 'text-red-400',
+        zhTokens: [
+          {w:'水', p:'shuǐ', m:'Water'},
+          {w:'沒地方走', p:'méi dì fāng zǒu', m:'Nowhere to go'},
+          '，',
+          {w:'水壓', p:'shuǐ yā', m:'Water pressure'},
+          {w:'集中', p:'jí zhōng', m:'Concentrates'},
+          {w:'在底部', p:'zài dǐ bù', m:'At the bottom'},
+          '，',
+          {w:'非常', p:'fēi cháng', m:'Extremely / very'},
+          {w:'危險', p:'wēi xiǎn', m:'Dangerous'},
+          '！'
+        ],
         svg: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
           <rect width="400" height="220" fill="#0f172a"/>
           <rect x="20" y="20" width="360" height="78" fill="#334155" opacity=".6"/>
@@ -2375,13 +2543,24 @@
       }
     };
 
+    function _buildDescHTML(d) {
+      let html = d.desc || '';
+      if (d.zhTokens && d.zhTokens.length) {
+        const cls = d.zhCls || 'text-[#FF8C00]';
+        html += `<br><br><span class="${cls}">${buildZhPopHTML(d.zhTokens)}</span>`;
+      }
+      return html;
+    }
     function openStageAnim(n) {
       const d = STAGE_ANIMS[n];
       if (!d) return;
       document.getElementById('stageAnimTitle').textContent = d.title;
       document.getElementById('stageAnimSub').textContent = d.zh;
       document.getElementById('stageAnimContent').innerHTML = d.svg;
-      document.getElementById('stageAnimDesc').innerHTML = d.desc;
+      const descEl = document.getElementById('stageAnimDesc');
+      descEl.innerHTML = _buildDescHTML(d);
+      attachZhPopHandlers(descEl);
+      _hideFloatingTip();
       document.getElementById('stageAnimModal').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
@@ -2391,13 +2570,17 @@
       document.getElementById('stageAnimTitle').textContent = d.title;
       document.getElementById('stageAnimSub').textContent = d.zh;
       document.getElementById('stageAnimContent').innerHTML = d.svg;
-      document.getElementById('stageAnimDesc').innerHTML = d.desc;
+      const descEl = document.getElementById('stageAnimDesc');
+      descEl.innerHTML = _buildDescHTML(d);
+      attachZhPopHandlers(descEl);
+      _hideFloatingTip();
       document.getElementById('stageAnimModal').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
     function closeStageAnim() {
       document.getElementById('stageAnimModal').classList.remove('open');
       document.body.style.overflow = '';
+      _hideFloatingTip();
       // Clear SVG so SMIL animations stop and reset
       document.getElementById('stageAnimContent').innerHTML = '';
     }
@@ -2414,23 +2597,121 @@
     // ─────────────────────────────────────────────────────────────────
 
     // ── Hydraulic-heave SVG animation modal ─────────────────────────
+    // zh is an array of tokens: { w: chinese word, p: pinyin, m: meaning }.
+    // Plain-string entries (no pinyin) render as punctuation/joiners.
     const HEAVE_STAGES = [
       { num:1, title:'Initial state — dry excavation',
-        zh:'第一階段：挖好基坑，還沒有水',
+        zh:[
+          {w:'第一', p:'dì yī', m:'First'},
+          {w:'階段', p:'jiē duàn', m:'Stage / phase'},
+          '：',
+          {w:'挖好', p:'wā hǎo', m:'Excavated / dug out'},
+          {w:'基坑', p:'jī kēng', m:'Foundation pit'},
+          '，',
+          {w:'還沒有', p:'hái méi yǒu', m:'Not yet has'},
+          {w:'水', p:'shuǐ', m:'Water'}
+        ],
         en:'The pit is dug and the sheet piles are driven in. Soil sits on either side. Groundwater table is far below the base — no upward pressure yet.' },
       { num:2, title:'Groundwater seeps from outside, under the piles, into the pit',
-        zh:'第二階段：地下水從板樁外側往下滲，再從底下流進基坑',
+        zh:[
+          {w:'第二', p:'dì èr', m:'Second'},
+          {w:'階段', p:'jiē duàn', m:'Stage / phase'},
+          '：',
+          {w:'地下水', p:'dì xià shuǐ', m:'Groundwater'},
+          {w:'從', p:'cóng', m:'From'},
+          {w:'板樁', p:'bǎn zhuāng', m:'Sheet pile'},
+          {w:'外側', p:'wài cè', m:'Outer side / outside'},
+          {w:'往下', p:'wǎng xià', m:'Downward'},
+          {w:'滲', p:'shèn', m:'Seep / infiltrate'},
+          '，',
+          {w:'再', p:'zài', m:'Then / again'},
+          {w:'從底下', p:'cóng dǐ xià', m:'From underneath'},
+          {w:'流進', p:'liú jìn', m:'Flow into'},
+          {w:'基坑', p:'jī kēng', m:'Foundation pit'}
+        ],
         en:'Groundwater rises around the pit. Water finds a path from the outside soil, flows downward along the pile, curves under the pile tip, and rises into the excavation base.' },
       { num:3, title:'Two forces act on the pit base',
-        zh:'第三階段：兩種力量同時作用',
+        zh:[
+          {w:'第三', p:'dì sān', m:'Third'},
+          {w:'階段', p:'jiē duàn', m:'Stage / phase'},
+          '：',
+          {w:'兩種', p:'liǎng zhǒng', m:'Two kinds of'},
+          {w:'力量', p:'lì liàng', m:'Force / power'},
+          {w:'同時', p:'tóng shí', m:'Simultaneously'},
+          {w:'作用', p:'zuò yòng', m:'Act / take effect'}
+        ],
         en:'Seepage force A pushes the soil upward (blue arrows). Soil weight G pushes it downward (orange arrows). As long as G > A, the base is stable.' },
       { num:4, title:'Force balance breaks — A exceeds G',
-        zh:'第四階段：水壓超過土的重量，平衡破壞',
+        zh:[
+          {w:'第四', p:'dì sì', m:'Fourth'},
+          {w:'階段', p:'jiē duàn', m:'Stage / phase'},
+          '：',
+          {w:'水壓', p:'shuǐ yā', m:'Water pressure'},
+          {w:'超過', p:'chāo guò', m:'Exceeds / surpasses'},
+          {w:'土', p:'tǔ', m:'Soil'},
+          {w:'的', p:'de', m:'(possessive particle)'},
+          {w:'重量', p:'zhòng liàng', m:'Weight'},
+          '，',
+          {w:'平衡', p:'píng héng', m:'Balance / equilibrium'},
+          {w:'破壞', p:'pò huài', m:'Breaks / is destroyed'}
+        ],
         en:'Water pressure keeps growing. When A > G, the effective stress drops to zero. A potential failure plane forms inside the pit base (red dashed arc).' },
       { num:5, title:'Hydraulic heave — catastrophic uplift',
-        zh:'第五階段：基底隆起，結構崩壞',
+        zh:[
+          {w:'第五', p:'dì wǔ', m:'Fifth'},
+          {w:'階段', p:'jiē duàn', m:'Stage / phase'},
+          '：',
+          {w:'基底', p:'jī dǐ', m:'Base / foundation bottom'},
+          {w:'隆起', p:'lóng qǐ', m:'Heave / uplift'},
+          '，',
+          {w:'結構', p:'jié gòu', m:'Structure'},
+          {w:'崩壞', p:'bēng huài', m:'Collapse / failure'}
+        ],
         en:'The soil mass below the pit lifts up like a piston. The base ruptures, the sheet piles tilt outward, and water and soil burst into the pit.' }
     ];
+
+    // Build the inline HTML for a zh token array.
+    function buildZhPopHTML(tokens) {
+      return tokens.map(t => {
+        if (typeof t === 'string') return t;
+        return `<span class="zh-pop" tabindex="0" data-pinyin="${t.p}" data-meaning="${t.m}">${t.w}</span>`;
+      }).join('');
+    }
+
+    // Floating tooltip — position:fixed so it escapes the modal panel's
+    // overflow:hidden and rounded corners.
+    function _positionFloatingTip(el) {
+      const tip = document.getElementById('floatingTip');
+      const r = el.getBoundingClientRect();
+      const tipW = tip.offsetWidth || 200;
+      let left = r.left + r.width / 2;
+      left = Math.max(tipW / 2 + 8, Math.min(window.innerWidth - tipW / 2 - 8, left));
+      tip.style.left = left + 'px';
+      tip.style.top = r.top + 'px';
+    }
+    function _showFloatingTip(e) {
+      const el = e.currentTarget;
+      const tip = document.getElementById('floatingTip');
+      const p = el.dataset.pinyin || '';
+      const m = el.dataset.meaning || '';
+      tip.innerHTML = p ? `<span class="tip-pinyin">${p}</span>${m}` : m;
+      tip.setAttribute('aria-hidden', 'false');
+      tip.classList.add('show');
+      _positionFloatingTip(el);
+    }
+    function _hideFloatingTip() {
+      const tip = document.getElementById('floatingTip');
+      tip.classList.remove('show');
+      tip.setAttribute('aria-hidden', 'true');
+    }
+    function attachZhPopHandlers(root) {
+      root.querySelectorAll('.zh-pop').forEach(el => {
+        el.addEventListener('mouseenter', _showFloatingTip);
+        el.addEventListener('mouseleave', _hideFloatingTip);
+        el.addEventListener('focus', _showFloatingTip);
+        el.addEventListener('blur', _hideFloatingTip);
+      });
+    }
     let _heaveStage = 0;
     let _heaveTimer = null;
     let _heavePlaying = true;
@@ -2445,8 +2726,12 @@
       const s = HEAVE_STAGES[_heaveStage];
       document.getElementById('stageNum').textContent = s.num;
       document.getElementById('stageTitle').textContent = s.title;
-      document.getElementById('stageMandarin').textContent = s.zh;
+      const mEl = document.getElementById('stageMandarin');
+      mEl.innerHTML = buildZhPopHTML(s.zh);
+      attachZhPopHandlers(mEl);
       document.getElementById('stageDesc').textContent = s.en;
+      // hide any lingering tooltip when stage changes
+      _hideFloatingTip();
       document.getElementById('heaveStageLabel').textContent = `Stage ${s.num} / ${HEAVE_STAGES.length}`;
       document.getElementById('heaveProgressBar').style.width = `${((_heaveStage + 1) / HEAVE_STAGES.length) * 100}%`;
     }
